@@ -1,0 +1,4 @@
+.vscode/
+dist/
+.astro/
+node_modules/
