@@ -5,7 +5,7 @@ pub type Result<T> = std::result::Result<T, LexerError>;
 
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {
-    Proposition(String),
+    Identifier(String),
     Literal(bool),
     Not,
     And,
@@ -17,7 +17,7 @@ pub enum TokenKind {
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
-    kind: TokenKind,
+    pub kind: TokenKind,
     start: usize,
     len: usize
 }
@@ -89,7 +89,7 @@ impl<'a> Lexer<'a> {
             Token { kind: TokenKind::Literal(if p == "true" { true } else { false }), start, len: token_len }
         }
         else {
-            Token { kind: TokenKind::Proposition(p.into()), start, len: token_len }
+            Token { kind: TokenKind::Identifier(p.into()), start, len: token_len }
         }
     }
 
@@ -151,7 +151,7 @@ mod tests {
         let lexer = Lexer::new("\t\r puppies");
         let tokens = lexer.parse().unwrap();
         assert_eq!(tokens.len(), 1);
-        assert_eq!(tokens[0].kind, TokenKind::Proposition("puppies".into()));
+        assert_eq!(tokens[0].kind, TokenKind::Identifier("puppies".into()));
     }
 
     #[test]
