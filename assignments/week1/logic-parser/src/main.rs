@@ -2,8 +2,8 @@ mod lexer;
 mod errors;
 
 fn main() {
-    let expr = "(p & q) => r";
-    let tokens = lexer::LexerBuilder::new(expr).parse();
+    let expr = "(69p & q) => r";
+    let tokens = lexer::Lexer::new(expr).parse();
 
     println!("{:#?}", tokens);
 }
