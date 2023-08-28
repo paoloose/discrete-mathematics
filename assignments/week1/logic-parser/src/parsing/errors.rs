@@ -12,6 +12,6 @@ pub enum LexerError {
 pub enum ParserError {
     #[error("Unexpected token: {0}")]
     UnexpectedToken(String),
-    #[error("Unexpected EOF")]
+    #[error("Unexpected EOF: {0}")]
     UnexpectedEOF(String),
 }

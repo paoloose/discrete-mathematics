@@ -23,7 +23,6 @@
 
         input.addEventListener("input",(e) => {
             let parsed = parse_expression(e.target.value);
-            console.log({parsed})
             output.innerText = JSON.stringify(
                 JSON.parse(parsed), null, 4
             );

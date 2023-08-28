@@ -65,14 +65,14 @@ impl<'a> Lexer<'a> {
             '=' => {
                 match self.next_char() {
                     Some('>') => Token { kind: TokenKind::Implies, start, len: 1 },
-                    _ => return Err(LexerError::SyntaxError(format!("Unexpected character (expected '=>'), got '{}'", c)))
+                    _ => return Err(LexerError::SyntaxError(format!("(expected '=>'), got '{}'", c)))
                 }
             },
             c if c.is_alphabetic() || c == '_' => {
                 self.tokenize_proposition(start)
             },
             _ => {
-                return Err(LexerError::UnknownToken(format!("Unkown Token: '{}'", c)))
+                return Err(LexerError::UnknownToken(c.into()))
             }
         };
 

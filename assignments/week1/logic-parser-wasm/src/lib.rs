@@ -17,16 +17,18 @@ pub fn parse_expression(expr: &str) -> String {
     // "(p | q) & (q => s)" -> [ | [p] [q] ]
     let tokens = match Lexer::new(expr).parse() {
         Ok(t) => t,
-        Err(_) => return r###"{
-            "status": "error"
-        }"###.into(),
+        Err(e) => return format!(r###"{{
+            "status": "error",
+            "error": "{err}"
+        }}"###, err=e.to_string())
     };
 
     let ast = match Parser::new(&tokens).parse() {
         Ok(ast) => ast,
-        Err(_) => return r###"{
-            "status": "error"
-        }"###.into(),
+        Err(e) => return format!(r###"{{
+            "status": "error",
+            "error": "{err}"
+        }}"###, err=e.to_string()),
     };
 
     format!(
