@@ -59,7 +59,7 @@ impl<'a> Lexer<'a> {
         let token = match c {
             '(' => Token { kind: TokenKind::OpenParen, start, len: 1 },
             ')' => Token { kind: TokenKind::CloseParen, start, len: 1 },
-            '!' => Token { kind: TokenKind::Not, start, len: 1 },
+            '~' => Token { kind: TokenKind::Not, start, len: 1 },
             '&' => Token { kind: TokenKind::And, start, len: 1 },
             '|' => Token { kind: TokenKind::Or, start, len: 1 },
             '=' => {
@@ -68,7 +68,7 @@ impl<'a> Lexer<'a> {
                     _ => return Err(LexerError::SyntaxError(format!("Unexpected character (expected '=>'), got '{}'", c)))
                 }
             },
-            c @ '_' | c if c.is_alphabetic() => {
+            c if c.is_alphabetic() || c == '_' => {
                 self.tokenize_proposition(start)
             },
             _ => {
@@ -92,7 +92,7 @@ impl<'a> Lexer<'a> {
 
     fn tokenize_proposition(&mut self, start: usize) -> Token {
         // We add one because we already consumed the first character
-        let token_len = self.take_while(|c| c.is_alphanumeric()) + 1;
+        let token_len = self.take_while(|c| c.is_alphanumeric() || c == '_') + 1;
         let p = &self.expr[start..start + token_len];
         if p == "false" || p == "true" {
             Token { kind: TokenKind::Literal(p == "true"), start, len: token_len }

@@ -9,3 +9,6 @@ crate-type = ["lib"]
 
 [dependencies]
 thiserror = "1.0.47"
+
+[dev-dependencies]
+assert_json = "0.1.0"

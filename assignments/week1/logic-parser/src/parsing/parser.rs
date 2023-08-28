@@ -19,19 +19,13 @@ pub enum ASTNode {
     Implies(Box<ASTNode>, Box<ASTNode>),
 }
 
-impl ASTNode {
-    pub fn as_str(&self) -> String {
-        format!("{:#?}", self)
-    }
-}
-
 impl<'a> Parser<'a> {
     pub fn new(tokens: &Vec<Token>) -> Parser {
         Parser { tokens, pos: 0 }
     }
 
     /// Logic expressions parser
-    /// ```
+    /// ```md
     /// expr: term ((=>) term)
     /// term: prop ((|, &) prop)
     /// prop: (~) (true | false | "name" | LPAREN expr RPAREN)
@@ -126,5 +120,126 @@ impl<'a> Parser<'a> {
 
     fn peek(&mut self) -> Option<&TokenKind> {
         self.tokens.get(self.pos).map(|t| &t.kind)
+    }
+}
+
+impl ASTNode {
+    pub fn as_str(&self) -> String {
+        format!("{:#?}", self)
+    }
+
+    pub fn as_json(&self) -> String {
+        match self {
+            ASTNode::Identifier(s) => {
+                format!(r###"{{
+                    "type": "identifier",
+                    "name": "{s}"
+                }}"###)
+            },
+            ASTNode::Literal(boolean) => {
+                format!(r###"{{
+                    "type": "literal",
+                    "value": {boolean}
+                }}"###)
+            },
+            ASTNode::Not(expr) => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "not",
+                    "expr": {expr}
+                }}"###, expr=expr.as_json())
+            },
+            ASTNode::And(left, right) => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "and",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+            ASTNode::Or(left, right) => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "or",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+            ASTNode::Implies(left, right) => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "implies",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::error::Error;
+    use crate::lexer::Lexer;
+    use crate::parser::Parser;
+
+    #[test]
+    fn json_rendered_properly() -> Result<(), Box<dyn Error>> {
+        use assert_json::assert_json;
+        let tokens = Lexer::new("((p)) => (q & ~(r))").parse()?;
+        let ast = Parser::new(&tokens).parse()?;
+        let result = ast.as_json();
+
+        assert_json!(result.as_str(), {
+            "type": "operator",
+            "name": "implies",
+            "left": {
+                "type": "identifier",
+                "name": "p"
+            },
+            "right": {
+                "type": "operator",
+                "name": "and",
+                "left": {
+                    "type": "identifier",
+                    "name": "q"
+                },
+                "right": {
+                    "type": "operator",
+                    "name": "not",
+                    "expr": {
+                        "type": "identifier",
+                        "name": "r"
+                    }
+                }
+            }
+        });
+        Ok(())
+    }
+
+    #[test]
+    fn multiple_negation_works() -> Result<(), Box<dyn Error>> {
+        use assert_json::assert_json;
+        let tokens = Lexer::new("~~~negate_me").parse()?;
+        let ast = Parser::new(&tokens).parse()?;
+        let result = ast.as_json();
+
+        assert_json!(result.as_str(), {
+            "type": "operator",
+            "name": "not",
+            "expr": {
+                "type": "operator",
+                "name": "not",
+                "expr": {
+                    "type": "operator",
+                    "name": "not",
+                    "expr": {
+                        "type": "identifier",
+                        "name": "negate_me"
+                    }
+                }
+            }
+        });
+        Ok(())
     }
 }
