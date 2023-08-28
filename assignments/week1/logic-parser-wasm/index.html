@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Assembly glue</title>
+</head>
+<body>
+    <script type="module">
+        import init, { parse_expression } from "./pkg/logic_parser_wasm.js";
+        init().then(() => {
+            console.log(parse_expression("p => q"));
+        });
+    </script>
+</body>
+</html>
