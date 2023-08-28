@@ -6,11 +6,28 @@
     <title>Web Assembly glue</title>
 </head>
 <body>
+    <h1>Logic parser!!!</h1>
+    <main style="display: flex; flex-direction: row;">
+        <aside style="padding-right: 20px;">
+            <input type="text" id="input" />
+        </aside>
+        <div>
+            <pre id="output"></pre>
+        </div>
+    </main>
     <script type="module">
-        import init, { parse_expression } from "./pkg/logic_parser_wasm.js";
-        init().then(() => {
-            console.log(parse_expression("p => => (~q)"));
-        });
+        import init, { parse_expression } from "./pkg/logic_parsers.js";
+        await init();
+        const input = document.getElementById("input");
+        const output = document.getElementById("output");
+
+        input.addEventListener("input",(e) => {
+            let parsed = parse_expression(e.target.value);
+            console.log({parsed})
+            output.innerText = JSON.stringify(
+                JSON.parse(parsed), null, 4
+            );
+        })
     </script>
 </body>
 </html>

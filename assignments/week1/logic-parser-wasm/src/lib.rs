@@ -15,8 +15,24 @@ pub fn parse_expression(expr: &str) -> String {
     // "p & q" -> [ & [p] [q]]
     // "p & (q => s)" -> [ & [p] [ => [q] [s]]]
     // "(p | q) & (q => s)" -> [ | [p] [q] ]
-    let tokens = Lexer::new(expr).parse().unwrap();
-    let ast = Parser::new(&tokens).parse().unwrap();
+    let tokens = match Lexer::new(expr).parse() {
+        Ok(t) => t,
+        Err(_) => return r###"{
+            "status": "error"
+        }"###.into(),
+    };
 
-    format!("{ast}", ast=ast.as_json())
+    let ast = match Parser::new(&tokens).parse() {
+        Ok(ast) => ast,
+        Err(_) => return r###"{
+            "status": "error"
+        }"###.into(),
+    };
+
+    format!(
+        r###"{{
+            "status": "success", "ast": {ast}
+        }}"###,
+        ast=ast.as_json()
+    )
 }
