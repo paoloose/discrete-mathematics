@@ -18,8 +18,14 @@ pub enum TokenKind {
 #[derive(Debug, PartialEq)]
 pub struct Token {
     pub kind: TokenKind,
-    start: usize,
-    len: usize
+    pub start: usize,
+    pub len: usize
+}
+
+impl std::fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "tokensito")
+    }
 }
 
 pub struct Lexer<'a> {
@@ -38,7 +44,7 @@ impl<'a> Lexer<'a> {
         while let Some(token) = self.next_token()? {
             tokens.push(token);
         }
-        return Ok(tokens);
+        Ok(tokens)
     }
 
     fn next_token(&mut self) -> Result<Option<Token>> {
@@ -62,8 +68,12 @@ impl<'a> Lexer<'a> {
                     _ => return Err(LexerError::SyntaxError(format!("Unexpected character (expected '=>'), got '{}'", c)))
                 }
             },
-            c @ '_' | c if c.is_alphabetic() => self.tokenize_proposition(start),
-            _ => return Err(LexerError::UnkownToken(format!("Unkown Token: '{}'", c)))
+            c @ '_' | c if c.is_alphabetic() => {
+                self.tokenize_proposition(start)
+            },
+            _ => {
+                return Err(LexerError::UnknownToken(format!("Unkown Token: '{}'", c)))
+            }
         };
 
         Ok(Some(token))
@@ -83,10 +93,9 @@ impl<'a> Lexer<'a> {
     fn tokenize_proposition(&mut self, start: usize) -> Token {
         // We add one because we already consumed the first character
         let token_len = self.take_while(|c| c.is_alphanumeric()) + 1;
-        println!("len={token_len}, start={start}");
         let p = &self.expr[start..start + token_len];
         if p == "false" || p == "true" {
-            Token { kind: TokenKind::Literal(if p == "true" { true } else { false }), start, len: token_len }
+            Token { kind: TokenKind::Literal(p == "true"), start, len: token_len }
         }
         else {
             Token { kind: TokenKind::Identifier(p.into()), start, len: token_len }

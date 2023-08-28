@@ -2,16 +2,16 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum LexerError {
-    #[error("Unexpected character: {0}")]
+    #[error("Syntax error: {0}")]
     SyntaxError(String),
-    #[error("Unkown Token: {0}")]
-    UnkownToken(String)
+    #[error("Unknown Token: {0}")]
+    UnknownToken(String)
 }
 
 #[derive(Error, Debug)]
 pub enum ParserError {
-    #[error("Unexpected character: {0}")]
+    #[error("Unexpected token: {0}")]
     UnexpectedToken(String),
-    #[error("Unkown Token: {0}")]
-    UnkownToken(String)
+    #[error("Unexpected EOF")]
+    UnexpectedEOF(String),
 }
