@@ -9,7 +9,7 @@
     <script type="module">
         import init, { parse_expression } from "./pkg/logic_parser_wasm.js";
         init().then(() => {
-            console.log(parse_expression("p => q"));
+            console.log(parse_expression("p => => (~q)"));
         });
     </script>
 </body>
