@@ -37,20 +37,14 @@ impl<'a> Parser<'a> {
 
     fn parse_expression(&mut self) -> Result<ASTNode> {
         let l_term = self.parse_term()?;
-        let t = self.consume();
-        dbg!(t);
 
-        match t.map(|t| &t.kind) {
+        match self.peek() {
             Some(TokenKind::Implies) => {
+                self.consume();
                 let r_term = self.parse_term()?;
-                dbg!(&r_term);
                 Ok(ASTNode::Implies(Box::new(l_term), Box::new(r_term)))
             }
-            Some(t) => {
-                Err(ParserError::UnexpectedToken(
-                    format!("{}", t)
-                ))
-            },
+            Some(_) => Ok(l_term),
             None => Ok(l_term)
         }
     }
@@ -58,18 +52,22 @@ impl<'a> Parser<'a> {
     fn parse_term(&mut self) -> Result<ASTNode> {
         let left = self.parse_proposition()?;
 
-        match self.consume().map(|t| &t.kind) {
+        match self.peek() {
             Some(TokenKind::And) => {
-                let right = self.parse_proposition()?;
-                Ok(ASTNode::And(Box::new(left), Box::new(right)))
+                self.consume();
+                Ok(ASTNode::And(
+                    Box::new(left),
+                    Box::new(self.parse_proposition()?))
+                )
             },
             Some(TokenKind::Or) => {
-                let right = self.parse_proposition()?;
-                Ok(ASTNode::Or(Box::new(left), Box::new(right)))
+                self.consume();
+                Ok(ASTNode::Or(
+                    Box::new(left),
+                    Box::new(self.parse_proposition()?))
+                )
             },
-            Some(_) => {
-                Err(ParserError::UnexpectedToken("Unexpeced Token".into()))
-            },
+            Some(_) => Ok(left),
             None => Ok(left)
         }
     }
@@ -78,10 +76,9 @@ impl<'a> Parser<'a> {
         let next_token = match self.consume() {
             Some(t) => t,
             None => return Err(
-                ParserError::UnexpectedEOF("Expected proposition".into())
+                ParserError::UnexpectedEOF("Proposition expected".into())
             ),
         };
-        dbg!(next_token);
 
         match &next_token.kind {
             TokenKind::Identifier(name) => {
@@ -96,7 +93,6 @@ impl<'a> Parser<'a> {
             },
             TokenKind::OpenParen => {
                 let expr = self.parse_expression()?;
-                dbg!(&expr);
                 if let Some(TokenKind::CloseParen) = self.peek() {
                     self.consume();
                     Ok(expr)
@@ -106,10 +102,10 @@ impl<'a> Parser<'a> {
                 }
             },
             TokenKind::CloseParen => {
-                Err(ParserError::UnexpectedToken("Unexpeced R_PAREN".into()))
+                Err(ParserError::UnexpectedToken("Unexpected R_PAREN".into()))
             },
-            _ => {
-                Err(ParserError::UnexpectedToken("Unexpeced Token".into()))
+            other => {
+                Err(ParserError::UnexpectedToken(format!("Unexpected Token {other}").into()))
             }
         }
     }
