@@ -1,5 +1,5 @@
-use crate::lexer::{Token, TokenKind};
-use crate::errors::ParserError;
+use crate::parsing::errors::ParserError;
+use crate::parsing::lexer::{Token, TokenKind};
 
 pub type Result<T> = std::result::Result<T, ParserError>;
 
@@ -17,6 +17,12 @@ pub enum ASTNode {
     And(Box<ASTNode>, Box<ASTNode>),
     Or(Box<ASTNode>, Box<ASTNode>),
     Implies(Box<ASTNode>, Box<ASTNode>),
+}
+
+impl ASTNode {
+    pub fn as_str(&self) -> String {
+        format!("{:#?}", self)
+    }
 }
 
 impl<'a> Parser<'a> {

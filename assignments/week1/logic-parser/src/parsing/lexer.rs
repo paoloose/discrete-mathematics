@@ -1,5 +1,5 @@
 use std::ops::Not;
-use crate::errors::LexerError;
+use crate::parsing::errors::LexerError;
 
 pub type Result<T> = std::result::Result<T, LexerError>;
 
