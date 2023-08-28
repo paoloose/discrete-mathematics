@@ -24,6 +24,11 @@ impl<'a> Parser<'a> {
     pub fn new(tokens: &Vec<Token>) -> Parser {
         Parser { tokens, pos: 0 }
     }
+    /// Logic expressions parser
+    ///
+    ///     expr:  term ((=>) term)
+    ///     term:  factor ((|, &) factor)
+    ///     prop:  (~) (true | false | "name" | LPAREN expr RPAREN)
     pub fn parse(&mut self) -> Result<ASTNode> {
         let mut stack: Vec<ASTNode> = Vec::with_capacity(4);
         let mut ast = ASTNode::Expression(None);
@@ -69,15 +74,4 @@ impl<'a> Parser<'a> {
     fn peek(&mut self) -> Option<&TokenKind> {
         self.tokens.get(self.pos).map(|t| &t.kind)
     }
-
-    // fn parse_identifier(&mut self) -> Result<ASTNode> {
-    //     match self.next() {
-    //         Some(Token { kind: TokenKind::Identifier(ref p), .. }) => {
-    //             Ok(ASTNode::Identifier(p.to_owned()))
-    //         },
-    //         _ => return Err(
-    //             ParserError::UnexpectedToken("Expected an identifier".into())
-    //         )
-    //     }
-    // }
 }
