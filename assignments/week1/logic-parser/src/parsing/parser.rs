@@ -35,6 +35,10 @@ impl Parser<'_> {
     /// ```
     pub fn parse(&mut self) -> Result<ASTNode> {
         let ast = self.parse_expression()?;
+        // If expression was not completedly parsed, return an error
+        if let Some(t) = self.consume() {
+            return Err(UnexpectedToken(format!("'{t}'", t=t.kind), t.span))
+        }
         Ok(ast)
     }
 
@@ -56,11 +60,7 @@ impl Parser<'_> {
                     Box::new(self.parse_expression()?))
                 )
             },
-            Some(TokenKind::CloseParen) => Ok(l_term),
-            Some(other) => {
-                let t = self.consume().unwrap();
-                Err(UnexpectedToken(format!("1. '{other}'"), t.span))
-            },
+            Some(_) => Ok(l_term),
             None => Ok(l_term)
         }
     }
@@ -93,7 +93,7 @@ impl Parser<'_> {
             Some(t) => t,
             None => {
                 // Gets the last token span, otherwise (start: 0, end: 0)
-                let last_span = self.tokens.last().map(|t| t.span.clone()).unwrap_or((0, 0).into());
+                let last_span = self.tokens.last().map(|t| t.span).unwrap_or((0, 0).into());
                 return Err(
                     UnexpectedEOF("Expected [~] (true | false | variable | (...))".into(), last_span)
                 )
@@ -207,12 +207,13 @@ impl ASTNode {
 
 #[cfg(test)]
 mod test {
-    use std::error::Error;
+    use super::*;
     use crate::lexing::Lexer;
-    use crate::parsing::Parser;
+    use std::error::Error;
+    use std::result::Result;
 
     #[test]
-    fn json_rendered_properly() -> Result<(), Box<dyn Error>> {
+    fn complex_json_rendered_properly() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
         let tokens = Lexer::new("((p || q)) => (q & ~(r))").parse()?;
         let ast = Parser::new(&tokens).parse()?;
@@ -353,5 +354,31 @@ mod test {
             }
         });
         Ok(())
+    }
+
+    #[test]
+    fn unmatched_paren_left_results_on_error() {
+        let tokens = Lexer::new("((a => b) <=> c").parse().unwrap();
+        let parse_error = Parser::new(&tokens).parse().unwrap_err();
+
+        match parse_error {
+            ParserError::UnexpectedToken(_, span) => {
+                assert_eq!(span, (0, 1).into())
+            },
+            _ => unreachable!()
+        }
+    }
+
+    #[test]
+    fn unmatched_paren_right_results_on_error() {
+        let tokens = Lexer::new("(a => b)) <=> c").parse().unwrap();
+
+        let parse_error = Parser::new(&tokens).parse().unwrap_err();
+        match parse_error {
+            ParserError::UnexpectedToken(_, span) => {
+                assert_eq!(span, (8, 9).into())
+            },
+            _ => unreachable!()
+        }
     }
 }

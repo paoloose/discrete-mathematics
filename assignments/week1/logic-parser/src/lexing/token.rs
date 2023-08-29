@@ -13,7 +13,7 @@ pub enum TokenKind {
 }
 
 /// An [`Span`] represents a range of characters in the source code
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Span {
     pub start: usize,
     pub end: usize
