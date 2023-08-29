@@ -1,5 +1,5 @@
-use crate::parsing::errors::ParserError;
-use crate::parsing::lexer::{Token, TokenKind};
+use crate::errors::ParserError;
+use crate::lexing::token::{Token, TokenKind};
 
 pub type Result<T> = std::result::Result<T, ParserError>;
 
@@ -17,16 +17,17 @@ pub enum ASTNode {
     And(Box<ASTNode>, Box<ASTNode>),
     Or(Box<ASTNode>, Box<ASTNode>),
     Implies(Box<ASTNode>, Box<ASTNode>),
+    IfAndOnlyIf(Box<ASTNode>, Box<ASTNode>),
 }
 
-impl<'a> Parser<'a> {
+impl Parser<'_> {
     pub fn new(tokens: &Vec<Token>) -> Parser {
         Parser { tokens, pos: 0 }
     }
 
     /// Logic expressions parser
     /// ```md
-    /// expr: term ((=>) term)
+    /// expr: term ((=> | <=>) term)
     /// term: prop ((|, &) prop)
     /// prop: (~) (true | false | "name" | LPAREN expr RPAREN)
     /// ```
@@ -43,6 +44,11 @@ impl<'a> Parser<'a> {
                 self.consume();
                 let r_term = self.parse_term()?;
                 Ok(ASTNode::Implies(Box::new(l_term), Box::new(r_term)))
+            },
+            Some(TokenKind::IfAndOnlyIf) => {
+                self.consume();
+                let r_term = self.parse_term()?;
+                Ok(ASTNode::IfAndOnlyIf(Box::new(l_term), Box::new(r_term)))
             }
             Some(_) => Ok(l_term),
             None => Ok(l_term)
@@ -73,19 +79,25 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_proposition(&mut self) -> Result<ASTNode> {
-        let next_token = match self.consume() {
+        use ParserError::UnexpectedToken;
+
+        let next_token = match self.consume().cloned() {
             Some(t) => t,
-            None => return Err(
-                ParserError::UnexpectedEOF("Proposition expected".into())
-            ),
+            None => {
+                // Gets the last token span, otherwise (start: 0, end: 0)
+                let last_span = self.tokens.last().map(|t| t.span.clone()).unwrap_or((0, 0).into());
+                return Err(
+                    ParserError::UnexpectedEOF("Expected [~] (true | false | variable | (...))".into(), last_span)
+                )
+            },
         };
 
-        match &next_token.kind {
+        match next_token.kind {
             TokenKind::Identifier(name) => {
                 Ok(ASTNode::Identifier(name.to_owned()))
             },
             TokenKind::Literal(boolean) => {
-                Ok(ASTNode::Literal(*boolean))
+                Ok(ASTNode::Literal(boolean))
             },
             TokenKind::Not => {
                 let prop = self.parse_proposition()?;
@@ -98,14 +110,14 @@ impl<'a> Parser<'a> {
                     Ok(expr)
                 }
                 else {
-                    Err(ParserError::UnexpectedToken("R_PAREN expected".into()))
+                    Err(UnexpectedToken("R_PAREN expected".into(), next_token.span))
                 }
             },
             TokenKind::CloseParen => {
-                Err(ParserError::UnexpectedToken("Unexpected R_PAREN".into()))
+                Err(UnexpectedToken("R_PAREN".into(), next_token.span))
             },
-            other => {
-                Err(ParserError::UnexpectedToken(format!("Unexpected Token {other}").into()))
+            other @ (TokenKind::And | TokenKind::Or | TokenKind::Implies | TokenKind::IfAndOnlyIf) => {
+                Err(UnexpectedToken(format!("'{other}'"), next_token.span))
             }
         }
     }
@@ -124,7 +136,7 @@ impl<'a> Parser<'a> {
 }
 
 impl ASTNode {
-    pub fn as_str(&self) -> String {
+    pub fn as_string(&self) -> String {
         format!("{:#?}", self)
     }
 
@@ -173,6 +185,14 @@ impl ASTNode {
                     "right": {right}
                 }}"###, left=left.as_json(), right=right.as_json())
             },
+            ASTNode::IfAndOnlyIf(left, right) => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "iff",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            }
         }
     }
 }
@@ -180,13 +200,13 @@ impl ASTNode {
 #[cfg(test)]
 mod test {
     use std::error::Error;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
+    use crate::lexing::Lexer;
+    use crate::parsing::Parser;
 
     #[test]
     fn json_rendered_properly() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("((p)) => (q & ~(r))").parse()?;
+        let tokens = Lexer::new("((p || q)) => (q & ~(r))").parse()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
@@ -194,8 +214,16 @@ mod test {
             "type": "operator",
             "name": "implies",
             "left": {
-                "type": "identifier",
-                "name": "p"
+                "type": "operator",
+                "name": "or",
+                "left": {
+                    "type": "identifier",
+                    "name": "p"
+                },
+                "right": {
+                    "type": "identifier",
+                    "name": "q"
+                }
             },
             "right": {
                 "type": "operator",
@@ -237,6 +265,82 @@ mod test {
                         "type": "identifier",
                         "name": "negate_me"
                     }
+                }
+            }
+        });
+        Ok(())
+    }
+
+    #[test]
+    fn iff_and_implies_work_together() -> Result<(), Box<dyn Error>> {
+        use assert_json::assert_json;
+        let tokens = Lexer::new("(a => b) <=> c").parse()?;
+        let ast = Parser::new(&tokens).parse()?;
+        let result = ast.as_json();
+
+        assert_json!(result.as_str(), {
+            "type": "operator",
+            "name": "iff",
+            "left": {
+                "type": "operator",
+                "name": "implies",
+                "left": {
+                    "type": "identifier",
+                    "name": "a"
+                },
+                "right": {
+                    "type": "identifier",
+                    "name": "b"
+                }
+            },
+            "right": {
+                "type": "identifier",
+                "name": "c"
+            }
+        });
+        Ok(())
+    }
+
+    #[test]
+    fn alternative_syntax_work() -> Result<(), Box<dyn Error>> {
+        use assert_json::assert_json;
+        let tokens = Lexer::new("(a & b) && ((b | c) || b)").parse()?;
+        let ast = Parser::new(&tokens).parse()?;
+        let result = ast.as_json();
+
+        assert_json!(result.as_str(), {
+            "type": "operator",
+            "name": "and",
+            "left": {
+                "type": "operator",
+                "name": "and",
+                "left": {
+                    "type": "identifier",
+                    "name": "a"
+                },
+                "right": {
+                    "type": "identifier",
+                    "name": "b"
+                }
+            },
+            "right": {
+                "type": "operator",
+                "name": "or",
+                "left": {
+                    "type": "operator",
+                    "name": "or",
+                    "left": {
+                        "type": "identifier",
+                        "name": "b"
+                    },
+                    "right": {
+                        "type": "identifier",
+                        "name": "c"
+                    }
+                },
+                "right": {
+                    "type": "identifier",
+                    "name": "b"
                 }
             }
         });
