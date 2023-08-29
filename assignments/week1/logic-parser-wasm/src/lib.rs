@@ -62,3 +62,19 @@ pub fn parse_expression(expr: &str) -> String {
         ast=ast.as_json()
     )
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use assert_json::assert_json;
+
+    #[test]
+    fn detects_unclosed_paren() {
+        let result = parse_expression(")p => q");
+        assert_json!(result.as_str(), {
+            "error": "Unexpected token: R_PAREN",
+            "span": [0, 1],
+            "status": "error"
+        });
+    }
+}

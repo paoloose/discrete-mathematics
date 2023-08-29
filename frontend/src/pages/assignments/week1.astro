@@ -1,0 +1,15 @@
+---
+
+---
+
+<canvas id="canvas">
+
+</canvas>
+
+<script>
+import init, { parse_expression } from "logic-parsers"
+
+init("logic-parser").then(() => {
+    console.log(parse_expression("P => q"));
+})
+</script>
