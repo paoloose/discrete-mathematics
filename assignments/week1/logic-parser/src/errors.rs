@@ -7,6 +7,8 @@ pub enum ParserError {
     UnexpectedToken(String, Span),
     #[error("Unexpected EOF: {0}")]
     UnexpectedEOF(String, Span),
+    // #[error("Ambiguous Expression: {0}")]
+    // AmbiguousExpression(String, Span)
 }
 
 #[derive(Error, Debug)]
@@ -16,4 +18,3 @@ pub enum LexerError {
     #[error("Unknown Token: {0}")]
     UnknownToken(String, Span)
 }
-

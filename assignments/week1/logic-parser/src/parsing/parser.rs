@@ -1,5 +1,6 @@
 use crate::errors::ParserError;
 use crate::lexing::token::{Token, TokenKind};
+use ParserError::{UnexpectedToken, UnexpectedEOF};
 
 pub type Result<T> = std::result::Result<T, ParserError>;
 
@@ -26,10 +27,11 @@ impl Parser<'_> {
     }
 
     /// Logic expressions parser
-    /// ```md
-    /// expr: term ((=> | <=>) term)
-    /// term: prop ((|, &) prop)
-    /// prop: (~) (true | false | "name" | LPAREN expr RPAREN)
+    ///
+    /// ```yaml
+    /// expr: term [(<-> | ->) expr]
+    /// term: prop [(|| | &&) term]
+    /// prop: [~] (true | false | "name" | LPAREN expr RPAREN)
     /// ```
     pub fn parse(&mut self) -> Result<ASTNode> {
         let ast = self.parse_expression()?;
@@ -39,55 +41,61 @@ impl Parser<'_> {
     fn parse_expression(&mut self) -> Result<ASTNode> {
         let l_term = self.parse_term()?;
 
-        match self.peek() {
+        match self.peek().cloned() {
             Some(TokenKind::Implies) => {
                 self.consume();
-                let r_term = self.parse_term()?;
-                Ok(ASTNode::Implies(Box::new(l_term), Box::new(r_term)))
+                Ok(ASTNode::Implies(
+                    Box::new(l_term),
+                    Box::new(self.parse_expression()?))
+                )
             },
             Some(TokenKind::IfAndOnlyIf) => {
                 self.consume();
-                let r_term = self.parse_term()?;
-                Ok(ASTNode::IfAndOnlyIf(Box::new(l_term), Box::new(r_term)))
-            }
-            Some(_) => Ok(l_term),
+                Ok(ASTNode::IfAndOnlyIf(
+                    Box::new(l_term),
+                    Box::new(self.parse_expression()?))
+                )
+            },
+            Some(TokenKind::CloseParen) => Ok(l_term),
+            Some(other) => {
+                let t = self.consume().unwrap();
+                Err(UnexpectedToken(format!("1. '{other}'"), t.span))
+            },
             None => Ok(l_term)
         }
     }
 
     fn parse_term(&mut self) -> Result<ASTNode> {
-        let left = self.parse_proposition()?;
+        let l_term = self.parse_proposition()?;
 
-        match self.peek() {
+        match self.peek().cloned() {
             Some(TokenKind::And) => {
                 self.consume();
                 Ok(ASTNode::And(
-                    Box::new(left),
-                    Box::new(self.parse_proposition()?))
+                    Box::new(l_term),
+                    Box::new(self.parse_term()?))
                 )
             },
             Some(TokenKind::Or) => {
                 self.consume();
                 Ok(ASTNode::Or(
-                    Box::new(left),
-                    Box::new(self.parse_proposition()?))
+                    Box::new(l_term),
+                    Box::new(self.parse_term()?))
                 )
             },
-            Some(_) => Ok(left),
-            None => Ok(left)
+            Some(_) => Ok(l_term),
+            None => Ok(l_term)
         }
     }
 
     fn parse_proposition(&mut self) -> Result<ASTNode> {
-        use ParserError::UnexpectedToken;
-
         let next_token = match self.consume().cloned() {
             Some(t) => t,
             None => {
                 // Gets the last token span, otherwise (start: 0, end: 0)
                 let last_span = self.tokens.last().map(|t| t.span.clone()).unwrap_or((0, 0).into());
                 return Err(
-                    ParserError::UnexpectedEOF("Expected [~] (true | false | variable | (...))".into(), last_span)
+                    UnexpectedEOF("Expected [~] (true | false | variable | (...))".into(), last_span)
                 )
             },
         };
@@ -130,7 +138,7 @@ impl Parser<'_> {
         token
     }
 
-    fn peek(&mut self) -> Option<&TokenKind> {
+    fn peek(&self) -> Option<&TokenKind> {
         self.tokens.get(self.pos).map(|t| &t.kind)
     }
 }
