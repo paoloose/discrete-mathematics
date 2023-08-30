@@ -1,15 +1,36 @@
 ---
-
+import Layout from "../../layouts/Layout.astro";
 ---
 
-<canvas id="canvas">
 
-</canvas>
+<Layout title="Assignments: semana 1">
+  <canvas id="canvas">
 
-<script>
-import init, { parse_expression } from "logic-parsers"
+  </canvas>
 
-init("logic-parser").then(() => {
-    console.log(parse_expression("P => q"));
-})
-</script>
+  <h1>Logic parser!!!</h1>
+  <main style="display: flex; flex-direction: row;">
+    <aside style="padding-right: 20px;">
+      <input type="text" id="input" />
+    </aside>
+    <div>
+      <pre id="output"></pre>
+    </div>
+    </main>
+
+    <script type="module">
+      import init, { parse_expression } from 'logic-parsers';
+
+      await init();
+      const input = document.querySelector('#input');
+      const output = document.querySelector('#output');
+
+      input.addEventListener('input', () => {
+        let parsed = parse_expression(input.value);
+        console.log(parsed)
+        output.innerText = JSON.stringify(
+        JSON.parse(parsed), null, 4
+        );
+      });
+    </script>
+</Layout>

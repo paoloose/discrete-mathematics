@@ -1,10 +1,24 @@
 ---
+import fs from 'node:fs/promises';
 import Link from '../components/Link.astro';
 import Layout from '../layouts/Layout.astro';
+
+const weeks = await fs.readdir('../assignments');
 ---
 
 <Layout title="Welcome to Astro.">
+	<header>Paolo Flores</header>
 	<main>
-		<Link href="/about/">about</Link>
+		<h1>Portafolio de matemática discreta</h1>
+		<div>
+			<h3>Assignments</h3>
+			{
+				weeks.map((week) => (
+					<li>
+						<Link href={`/assignments/${week}`}>{week}</Link>
+					</li>
+				))
+			}
+		</div>
 	</main>
 </Layout>
