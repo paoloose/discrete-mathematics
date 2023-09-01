@@ -1,10 +1,13 @@
 ---
-interface Props {
-	href: string;
-}
+import type { HTMLAttributes } from "astro/types";
 
-const { href } = Astro.props;
-const url = `${import.meta.env.BASE_URL.slice(0, -1)}${href}`;
+type Props = HTMLAttributes<"a">;
+
+const { href, ...attrs } = Astro.props;
+const { BASE_URL } = import.meta.env;
+const base = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+const url = `${BASE_URL}${href}`;
+console.log({ url: BASE_URL })
 ---
 
-<a href={url} target="_self"><slot /></a>
+<a href={url} {...attrs} target="_self"><slot /></a>
