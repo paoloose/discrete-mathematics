@@ -1,9 +1,10 @@
 ---
+import { Image } from 'astro:assets';
 import fs from 'node:fs/promises';
+
 import Link from '@components/Link.astro';
 import Layout from '@layouts/Layout.astro';
 import clouds from '@assets/clouds.gif';
-import { Image } from 'astro:assets';
 
 const weeks = await fs.readdir('../assignments');
 ---

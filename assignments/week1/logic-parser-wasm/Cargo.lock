@@ -75,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "logic-parsers"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "assert_json",
  "console_error_panic_hook",
