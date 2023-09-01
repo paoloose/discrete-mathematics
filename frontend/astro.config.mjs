@@ -8,6 +8,6 @@ export default defineConfig({
   site: 'https://paoloose.site',
   integrations: [react()],
   vite: {
-    plugins: [wasm(), topLevelAwait()]
+    plugins: [wasm(), topLevelAwait()],
   }
 });

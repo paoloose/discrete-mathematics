@@ -1,14 +1,17 @@
-import { parse_expression } from 'logic-parsers';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 
-function Thing() {
+function LogicParser() {
   const [output, setOutput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
   }, []);
 
-  const handleInput = (e: FormEvent<HTMLInputElement>) => {
+  const handleInput = async (_: FormEvent<HTMLInputElement>) => {
+    if (!inputRef.current) return;
+
+    const { parse_expression } = await import('logic-parsers');
     const parsed = parse_expression(inputRef.current.value);
     const formattedOutput = JSON.stringify(JSON.parse(parsed), null, 4);
     setOutput(formattedOutput);
@@ -28,4 +31,4 @@ function Thing() {
   );
 }
 
-export default Thing;
+export default LogicParser;
