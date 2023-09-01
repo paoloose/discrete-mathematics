@@ -11,7 +11,12 @@
   },
   "dependencies": {
     "astro": "3.0.2",
-    "logic-parsers": "0.1.0"
+    "logic-parsers": "0.1.0",
+    "@astrojs/react": "^3.0.0",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/node": "20.5.7",
