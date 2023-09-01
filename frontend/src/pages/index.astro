@@ -1,10 +1,31 @@
 ---
-import Link from '../components/Link.astro';
-import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import fs from 'node:fs/promises';
+
+import Link from '@components/Link.astro';
+import Layout from '@layouts/Layout.astro';
+import clouds from '@assets/clouds.gif';
+
+const weeks = await fs.readdir('../assignments');
 ---
 
-<Layout title="Welcome to Astro.">
+<Layout title="Discrete Mathematics portfolio">
+	<header>Paolo Flores</header>
 	<main>
-		<Link href="/about/">about</Link>
+		<h1>Portafolio de matemática discreta</h1>
+		<Image
+			width={300}
+			src={clouds} alt="Clouds moving across the sky"
+		/>
+		<div>
+			<h3>Assignments</h3>
+			{
+				weeks.map((week) => (
+					<li>
+						<Link href={`/assignments/${week}`}>{week}</Link>
+					</li>
+				))
+			}
+		</div>
 	</main>
 </Layout>
