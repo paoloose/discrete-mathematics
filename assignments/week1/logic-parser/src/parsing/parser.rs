@@ -2,23 +2,14 @@ use crate::errors::ParserError;
 use crate::lexing::token::{Token, TokenKind};
 use ParserError::{UnexpectedToken, UnexpectedEOF};
 
+use super::node::ASTNode;
+
 pub type Result<T> = std::result::Result<T, ParserError>;
 
 #[derive(Debug)]
 pub struct Parser<'a> {
     tokens: &'a Vec<Token>,
     pos: usize
-}
-
-#[derive(Debug)]
-pub enum ASTNode {
-    Identifier(String),
-    Literal(bool),
-    Not(Box<ASTNode>),
-    And(Box<ASTNode>, Box<ASTNode>),
-    Or(Box<ASTNode>, Box<ASTNode>),
-    Implies(Box<ASTNode>, Box<ASTNode>),
-    IfAndOnlyIf(Box<ASTNode>, Box<ASTNode>),
 }
 
 impl Parser<'_> {
@@ -48,17 +39,17 @@ impl Parser<'_> {
         match self.peek().cloned() {
             Some(TokenKind::Implies) => {
                 self.consume();
-                Ok(ASTNode::Implies(
-                    Box::new(l_term),
-                    Box::new(self.parse_expression()?))
-                )
+                Ok(ASTNode::Implies {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_expression()?)
+                })
             },
             Some(TokenKind::IfAndOnlyIf) => {
                 self.consume();
-                Ok(ASTNode::IfAndOnlyIf(
-                    Box::new(l_term),
-                    Box::new(self.parse_expression()?))
-                )
+                Ok(ASTNode::IfAndOnlyIf {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_expression()?)
+                })
             },
             Some(_) => Ok(l_term),
             None => Ok(l_term)
@@ -71,17 +62,17 @@ impl Parser<'_> {
         match self.peek().cloned() {
             Some(TokenKind::And) => {
                 self.consume();
-                Ok(ASTNode::And(
-                    Box::new(l_term),
-                    Box::new(self.parse_term()?))
-                )
+                Ok(ASTNode::And {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_term()?)
+                })
             },
             Some(TokenKind::Or) => {
                 self.consume();
-                Ok(ASTNode::Or(
-                    Box::new(l_term),
-                    Box::new(self.parse_term()?))
-                )
+                Ok(ASTNode::Or {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_term()?)
+                })
             },
             Some(_) => Ok(l_term),
             None => Ok(l_term)
@@ -102,14 +93,14 @@ impl Parser<'_> {
 
         match next_token.kind {
             TokenKind::Identifier(name) => {
-                Ok(ASTNode::Identifier(name.to_owned()))
+                Ok(ASTNode::Identifier { name: name.to_owned() })
             },
             TokenKind::Literal(boolean) => {
-                Ok(ASTNode::Literal(boolean))
+                Ok(ASTNode::Literal { value: boolean })
             },
             TokenKind::Not => {
                 let prop = self.parse_proposition()?;
-                Ok(ASTNode::Not(Box::new(prop)))
+                Ok(ASTNode::Not{ operand: Box::new(prop) })
             },
             TokenKind::OpenParen => {
                 let expr = self.parse_expression()?;
@@ -140,68 +131,6 @@ impl Parser<'_> {
 
     fn peek(&self) -> Option<&TokenKind> {
         self.tokens.get(self.pos).map(|t| &t.kind)
-    }
-}
-
-impl ASTNode {
-    pub fn as_string(&self) -> String {
-        format!("{:#?}", self)
-    }
-
-    pub fn as_json(&self) -> String {
-        match self {
-            ASTNode::Identifier(s) => {
-                format!(r###"{{
-                    "type": "identifier",
-                    "name": "{s}"
-                }}"###)
-            },
-            ASTNode::Literal(boolean) => {
-                format!(r###"{{
-                    "type": "literal",
-                    "value": {boolean}
-                }}"###)
-            },
-            ASTNode::Not(expr) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "not",
-                    "expr": {expr}
-                }}"###, expr=expr.as_json())
-            },
-            ASTNode::And(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "and",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::Or(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "or",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::Implies(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "implies",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::IfAndOnlyIf(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "iff",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            }
-        }
     }
 }
 
@@ -244,7 +173,7 @@ mod test {
                 "right": {
                     "type": "operator",
                     "name": "not",
-                    "expr": {
+                    "operand": {
                         "type": "identifier",
                         "name": "r"
                     }
@@ -264,13 +193,13 @@ mod test {
         assert_json!(result.as_str(), {
             "type": "operator",
             "name": "not",
-            "expr": {
+            "operand": {
                 "type": "operator",
                 "name": "not",
-                "expr": {
+                "operand": {
                     "type": "operator",
                     "name": "not",
-                    "expr": {
+                    "operand": {
                         "type": "identifier",
                         "name": "negate_me"
                     }

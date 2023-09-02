@@ -1,0 +1,99 @@
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+#[cfg(feature = "serde")]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all="snake_case")]
+pub enum ASTNode {
+    Identifier { name: String },
+    Literal { value: bool },
+    Not { operand: Box<ASTNode> },
+    And { left: Box<ASTNode>, right: Box<ASTNode> },
+    Or { left: Box<ASTNode>, right: Box<ASTNode> },
+    Implies { left: Box<ASTNode>, right: Box<ASTNode> },
+    #[serde(rename = "iff")]
+    IfAndOnlyIf { left: Box<ASTNode>, right: Box<ASTNode> },
+}
+
+// Serde Serialize and Deserialize traits are available when the
+// optional 'serde' feature is enabled
+
+#[cfg(not(feature = "serde"))]
+#[derive(Debug)]
+pub enum ASTNode {
+    Identifier { name: String },
+    Literal { value: bool },
+    Not { operand: Box<ASTNode> },
+    And { left: Box<ASTNode>, right: Box<ASTNode> },
+    Or { left: Box<ASTNode>, right: Box<ASTNode> },
+    Implies { left: Box<ASTNode>, right: Box<ASTNode> },
+    IfAndOnlyIf { left: Box<ASTNode>, right: Box<ASTNode> },
+}
+
+impl ASTNode {
+    pub fn as_string(&self) -> String {
+        format!("{:#?}", self)
+    }
+
+    #[cfg(not(feature = "serde"))]
+    pub fn as_json(&self) -> String {
+        match self {
+            ASTNode::Identifier { name } => {
+                format!(r###"{{
+                    "type": "identifier",
+                    "name": "{name}"
+                }}"###)
+            },
+            ASTNode::Literal { value } => {
+                format!(r###"{{
+                    "type": "literal",
+                    "value": {value}
+                }}"###)
+            },
+            ASTNode::Not { operand } => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "not",
+                    "operand": {operand}
+                }}"###, operand=operand.as_json())
+            },
+            ASTNode::And { left, right } => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "and",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+            ASTNode::Or { left, right } => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "or",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+            ASTNode::Implies { left, right } => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "implies",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            },
+            ASTNode::IfAndOnlyIf { left, right } => {
+                format!(r###"{{
+                    "type": "operator",
+                    "name": "iff",
+                    "left": {left},
+                    "right": {right}
+                }}"###, left=left.as_json(), right=right.as_json())
+            }
+        }
+    }
+
+    #[cfg(feature = "serde")]
+    pub fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+}

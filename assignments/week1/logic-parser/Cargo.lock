@@ -385,6 +385,9 @@ dependencies = [
  "assert_json",
  "image",
  "imageproc",
+ "rusttype",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

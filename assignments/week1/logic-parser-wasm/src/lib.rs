@@ -1,15 +1,11 @@
-use std::panic;
+use std::{panic, vec};
+use logic_parser::image_generation::render::render_to_image;
 use serde_json::json;
 use wasm_bindgen::prelude::*;
 
 use logic_parser::lexing::Lexer;
-use logic_parser::parsing::Parser;
+use logic_parser::parsing::{Parser, ASTNode};
 use logic_parser::errors::{LexerError, ParserError};
-
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
 
 macro_rules! generate_json_error {
     ($span: expr, $error: expr) => {
@@ -61,6 +57,12 @@ pub fn parse_expression(expr: &str) -> String {
         }}"###,
         ast=ast.as_json()
     )
+}
+
+#[wasm_bindgen]
+pub fn generate_image(ast: JsValue) -> String {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+    ast.as_string()
 }
 
 #[cfg(test)]
