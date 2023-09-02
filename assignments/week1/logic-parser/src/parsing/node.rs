@@ -7,11 +7,15 @@ use serde::{Serialize, Deserialize};
 pub enum ASTNode {
     Identifier { name: String },
     Literal { value: bool },
+    #[serde(rename = "operator.not")]
     Not { operand: Box<ASTNode> },
+    #[serde(rename = "operator.and")]
     And { left: Box<ASTNode>, right: Box<ASTNode> },
+    #[serde(rename = "operator.or")]
     Or { left: Box<ASTNode>, right: Box<ASTNode> },
+    #[serde(rename = "operator.implies")]
     Implies { left: Box<ASTNode>, right: Box<ASTNode> },
-    #[serde(rename = "iff")]
+    #[serde(rename = "operator.iff")]
     IfAndOnlyIf { left: Box<ASTNode>, right: Box<ASTNode> },
 }
 
@@ -52,39 +56,34 @@ impl ASTNode {
             },
             ASTNode::Not { operand } => {
                 format!(r###"{{
-                    "type": "operator",
-                    "name": "not",
+                    "type": "operator.not",
                     "operand": {operand}
                 }}"###, operand=operand.as_json())
             },
             ASTNode::And { left, right } => {
                 format!(r###"{{
-                    "type": "operator",
-                    "name": "and",
+                    "type": "operator.and",
                     "left": {left},
                     "right": {right}
                 }}"###, left=left.as_json(), right=right.as_json())
             },
             ASTNode::Or { left, right } => {
                 format!(r###"{{
-                    "type": "operator",
-                    "name": "or",
+                    "type": "operator.or",
                     "left": {left},
                     "right": {right}
                 }}"###, left=left.as_json(), right=right.as_json())
             },
             ASTNode::Implies { left, right } => {
                 format!(r###"{{
-                    "type": "operator",
-                    "name": "implies",
+                    "type": "operator.implies",
                     "left": {left},
                     "right": {right}
                 }}"###, left=left.as_json(), right=right.as_json())
             },
             ASTNode::IfAndOnlyIf { left, right } => {
                 format!(r###"{{
-                    "type": "operator",
-                    "name": "iff",
+                    "type": "operator.iff",
                     "left": {left},
                     "right": {right}
                 }}"###, left=left.as_json(), right=right.as_json())

@@ -149,11 +149,9 @@ mod test {
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "implies",
+            "type": "operator.implies",
             "left": {
-                "type": "operator",
-                "name": "or",
+                "type": "operator.or",
                 "left": {
                     "type": "identifier",
                     "name": "p"
@@ -164,15 +162,13 @@ mod test {
                 }
             },
             "right": {
-                "type": "operator",
-                "name": "and",
+                "type": "operator.and",
                 "left": {
                     "type": "identifier",
                     "name": "q"
                 },
                 "right": {
-                    "type": "operator",
-                    "name": "not",
+                    "type": "operator.not",
                     "operand": {
                         "type": "identifier",
                         "name": "r"
@@ -191,14 +187,11 @@ mod test {
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "not",
+            "type": "operator.not",
             "operand": {
-                "type": "operator",
-                "name": "not",
+                "type": "operator.not",
                 "operand": {
-                    "type": "operator",
-                    "name": "not",
+                    "type": "operator.not",
                     "operand": {
                         "type": "identifier",
                         "name": "negate_me"
@@ -217,11 +210,9 @@ mod test {
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "iff",
+            "type": "operator.iff",
             "left": {
-                "type": "operator",
-                "name": "implies",
+                "type": "operator.implies",
                 "left": {
                     "type": "identifier",
                     "name": "a"
@@ -247,11 +238,9 @@ mod test {
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "and",
+            "type": "operator.and",
             "left": {
-                "type": "operator",
-                "name": "and",
+                "type": "operator.and",
                 "left": {
                     "type": "identifier",
                     "name": "a"
@@ -262,11 +251,9 @@ mod test {
                 }
             },
             "right": {
-                "type": "operator",
-                "name": "or",
+                "type": "operator.or",
                 "left": {
-                    "type": "operator",
-                    "name": "or",
+                    "type": "operator.or",
                     "left": {
                         "type": "identifier",
                         "name": "b"
