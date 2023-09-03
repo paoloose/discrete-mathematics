@@ -1,4 +1,5 @@
 use std::{panic, vec};
+use image::ImageEncoder;
 use logic_parser::image_generation::render::render_to_image;
 use serde_json::json;
 use wasm_bindgen::prelude::*;
@@ -60,9 +61,16 @@ pub fn parse_expression(expr: &str) -> String {
 }
 
 #[wasm_bindgen]
-pub fn generate_image(ast: JsValue) -> String {
+pub fn generate_image(ast: JsValue) -> Vec<u8> {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
-    ast.as_string()
+
+    let ast: ASTNode = serde_wasm_bindgen::from_value(ast).unwrap();
+    let img = render_to_image(ast).unwrap();
+    let mut vec = Vec::new();
+
+    let encode = image::codecs::png::PngEncoder::new(&mut vec);
+    encode.write_image(&img, img.width(), img.height(), image::ColorType::Rgb8).unwrap();
+    vec
 }
 
 #[cfg(test)]
