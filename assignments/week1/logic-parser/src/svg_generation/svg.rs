@@ -88,7 +88,7 @@ impl Svg {
         );
     }
 
-    pub fn render(&self) -> String {
+    pub fn as_xml(&self) -> String {
         format!(
             r#"<svg viewBox="{vb}" xmlns="http://www.w3.org/2000/svg">{elements}</svg>"#,
             vb = format!("{x} {y} {w} {h}", x = self.view_box.0, y = self.view_box.1, w = self.view_box.2, h = self.view_box.3),

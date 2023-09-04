@@ -144,7 +144,7 @@ mod test {
     #[test]
     fn complex_json_rendered_properly() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("((p || q)) => (q & ~(r))").parse()?;
+        let tokens = Lexer::new("((p || q)) => (q & ~(r))").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
@@ -182,7 +182,7 @@ mod test {
     #[test]
     fn multiple_negation_works() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("~~~negate_me").parse()?;
+        let tokens = Lexer::new("~~~negate_me").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
@@ -205,7 +205,7 @@ mod test {
     #[test]
     fn iff_and_implies_work_together() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("(a => b) <=> c").parse()?;
+        let tokens = Lexer::new("(a => b) <=> c").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
@@ -233,7 +233,7 @@ mod test {
     #[test]
     fn alternative_syntax_work() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("(a & b) && ((b | c) || b)").parse()?;
+        let tokens = Lexer::new("(a & b) && ((b | c) || b)").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
@@ -274,7 +274,7 @@ mod test {
 
     #[test]
     fn unmatched_paren_left_results_on_error() {
-        let tokens = Lexer::new("((a => b) <=> c").parse().unwrap();
+        let tokens = Lexer::new("((a => b) <=> c").tokenize().unwrap();
         let parse_error = Parser::new(&tokens).parse().unwrap_err();
 
         match parse_error {
@@ -287,7 +287,7 @@ mod test {
 
     #[test]
     fn unmatched_paren_right_results_on_error() {
-        let tokens = Lexer::new("(a => b)) <=> c").parse().unwrap();
+        let tokens = Lexer::new("(a => b)) <=> c").tokenize().unwrap();
 
         let parse_error = Parser::new(&tokens).parse().unwrap_err();
         match parse_error {
