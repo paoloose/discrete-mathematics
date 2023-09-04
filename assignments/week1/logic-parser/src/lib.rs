@@ -2,5 +2,5 @@ pub mod errors;
 pub mod lexing;
 pub mod parsing;
 
-#[cfg(feature = "image-generation")]
-pub mod image_generation;
+#[cfg(feature = "svg-generation")]
+pub mod svg_generation;

@@ -15,8 +15,9 @@
             <pre id="output"></pre>
         </div>
     </main>
+    <div id="renderization"></div>
     <script type="module">
-        import init, { parse_expression, generate_image } from "./pkg/logic_parsers.js";
+        import init, { parse_expression, generate_svg } from "./pkg/logic_parsers.js";
         await init();
         const input = document.getElementById("input");
         const output = document.getElementById("output");
@@ -25,10 +26,17 @@
             const parsed = JSON.parse(parse_expression(e.target.value));
 
             if (parsed.status === "success") {
-                console.log(generate_image(parsed.ast))
+                const render = document.getElementById("renderization");
+                render.innerHTML = generate_svg(parsed.ast);
             }
             output.innerText = JSON.stringify(parsed, null, 4);
         })
     </script>
+    <style>
+        svg {
+            width: 100vw;
+            max-height: 400px;
+        }
+    </style>
 </body>
 </html>
