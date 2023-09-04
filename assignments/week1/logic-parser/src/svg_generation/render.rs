@@ -112,7 +112,7 @@ mod test {
                 horizontal_separation,
                 vertical_separation,
                 radius
-            ).render().lines().count(),
+            ).as_xml().lines().count(),
             2
         );
 
