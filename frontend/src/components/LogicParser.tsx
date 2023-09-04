@@ -19,7 +19,7 @@ function LogicParser() {
     const formattedOutput = JSON.stringify(parsed, null, 4);
 
     if (parsed.status === 'success') {
-      const renderedSvg = generate_svg(parsed.ast);
+      const renderedSvg = generate_svg(parsed.ast, 20, 30, 10);
       setSvgStr(renderedSvg);
     }
     setOutput(formattedOutput);

@@ -1,8 +1,8 @@
 pub struct Svg {
-    view_box: (f32, f32, f32, f32),
-    font: &'static str,
-    stroke_width: u32,
-    stroke: &'static str, // <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke>
+    pub view_box: (f32, f32, f32, f32),
+    pub font: &'static str,
+    pub stroke_width: u32,
+    pub stroke: &'static str, // <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke>
     elements: Vec<String>
 }
 

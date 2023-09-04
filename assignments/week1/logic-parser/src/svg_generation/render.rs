@@ -35,20 +35,13 @@ static FONT_SIZE: u32 = 12;
 /// ```
 ///
 /// It is highly recommended that you choose `sx >= r` and `sy >= 2r`.
-///
-/// The rendered image dimensions will be `width`x`height` where:
-/// - `width` = `sx(2^n - 2) + 2r`
-/// - `height` = `sy(n - 1) + 2r`
-///
-/// Where:
-/// - `n` = The depth of the tree
 pub fn render_to_svg(ast: ASTNode, xsep: f32, ysep: f32, radius: f32) -> Svg {
     let n = ast_depth(&ast) as i32; // >= 1
-    let middle_grid = f32::powi(2f32, n - 1) as u32 - 1;
-    let padding = radius + 60_f32;
+    let middle_grid = f32::powi(2_f32, n - 1) as u32 - 1;
+    let padding = radius;
 
-    let width = 2f32 * middle_grid as f32 * xsep + (padding * 2f32);
-    let height = ysep * (n - 1) as f32 + (padding * 2f32);
+    let width = 2_f32 * middle_grid as f32 * xsep + (padding * 2_f32);
+    let height = ysep * (n - 1) as f32 + (padding * 2_f32);
 
     let get_real_xy = |grid_x: u32, grid_y: u32| {
         let x: f32 = grid_x as f32 * xsep + padding;
@@ -103,9 +96,11 @@ mod test {
     fn svg_has_correct_amount_of_lines() -> Result<(), Box<dyn Error>> {
         let tokens = crate::lexing::Lexer::new("p").tokenize()?;
         let ast = crate::parsing::Parser::new(&tokens).parse()?;
+
         let horizontal_separation: f32 = 20_f32;
         let vertical_separation: f32 = 30_f32;
         let radius: f32 = 15_f32;
+
         assert_eq!(
             render_to_svg(
                 ast,

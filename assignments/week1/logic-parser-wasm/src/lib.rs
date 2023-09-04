@@ -59,15 +59,15 @@ pub fn parse_expression(expr: &str) -> String {
 }
 
 #[wasm_bindgen]
-pub fn generate_svg(ast: JsValue) -> String {
+pub fn generate_svg(ast: JsValue, xsep: f32, ysep: f32, radius: f32) -> String {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    let ast: ASTNode = serde_wasm_bindgen::from_value(ast).unwrap();
-    let horizontal_separation: f32 = 20_f32;
-    let vertical_separation: f32 = 60_f32;
-    let radius: f32 = 15_f32;
-    let svg = render_to_svg(ast, horizontal_separation, vertical_separation, radius);
+    let ast: ASTNode = match serde_wasm_bindgen::from_value(ast) {
+        Ok(ast) => ast,
+        Err(_) => return String::new()
+    };
 
+    let svg = render_to_svg(ast, xsep, ysep, radius);
     svg.as_xml()
 }
 
