@@ -21,38 +21,38 @@ fn ast_depth(ast: &ASTNode) -> u32 {
 
 static FONT_SIZE: u32 = 12;
 
-/// The rendered tree is `tree(s, h, r)` where:
+/// The rendered tree is `tree(sx, sy, r)` where:
 ///
 /// ```md
 ///         —— (r)adius
 ///       (  )     ╻
 ///       /  \     │
-///      /    \    │ (h)eight
+///      /    \    │ (sy)
 ///     /      \   │
 ///   (  )    (  ) ╹
 ///         ————
-///          (s)eparation
+///         (sx)
 /// ```
 ///
-/// It is highly recommended that you choose `s >= r` and `h >= 2r`.
+/// It is highly recommended that you choose `sx >= r` and `sy >= 2r`.
 ///
 /// The rendered image dimensions will be `width`x`height` where:
-/// - `width` = `s(2^n - 2) + 2r`
-/// - `height` = `h(n - 1) + 2r`
+/// - `width` = `sx(2^n - 2) + 2r`
+/// - `height` = `sy(n - 1) + 2r`
 ///
 /// Where:
 /// - `n` = The depth of the tree
-pub fn render_to_svg(ast: ASTNode, s: f32, h: f32, r: f32) -> Svg {
+pub fn render_to_svg(ast: ASTNode, xsep: f32, ysep: f32, radius: f32) -> Svg {
     let n = ast_depth(&ast) as i32; // >= 1
     let middle_grid = f32::powi(2f32, n - 1) as u32 - 1;
-    let padding = r + 60_f32;
+    let padding = radius + 60_f32;
 
-    let width = 2f32 * middle_grid as f32 * s + (padding * 2f32);
-    let height = h * (n - 1) as f32 + (padding * 2f32);
+    let width = 2f32 * middle_grid as f32 * xsep + (padding * 2f32);
+    let height = ysep * (n - 1) as f32 + (padding * 2f32);
 
     let get_real_xy = |grid_x: u32, grid_y: u32| {
-        let x: f32 = grid_x as f32 * s + padding;
-        let y: f32 = grid_y as f32 * h + padding;
+        let x: f32 = grid_x as f32 * xsep + padding;
+        let y: f32 = grid_y as f32 * ysep + padding;
 
         (x, y)
     };
@@ -68,7 +68,7 @@ pub fn render_to_svg(ast: ASTNode, s: f32, h: f32, r: f32) -> Svg {
         let pos = get_real_xy(grid_x, grid_y);
 
         let next_step = u32::pow(2, (n as u32) - (grid_y + 1)) / 2;
-        img.draw_circle_with_text(pos, r, node.repr(), FONT_SIZE);
+        img.draw_circle_with_text(pos, radius, node.repr(), FONT_SIZE);
 
         match node {
             ASTNode::And { left, right } |
@@ -80,12 +80,12 @@ pub fn render_to_svg(ast: ASTNode, s: f32, h: f32, r: f32) -> Svg {
 
                 let left_to = get_real_xy(grid_x - next_step, grid_y + 1);
                 let right_to = get_real_xy(grid_x + next_step, grid_y + 1);
-                img.draw_line_with_offset(pos, left_to, r);
-                img.draw_line_with_offset(pos, right_to, r);
+                img.draw_line_with_offset(pos, left_to, radius);
+                img.draw_line_with_offset(pos, right_to, radius);
             },
              ASTNode::Not { operand } => {
                 stack.push((operand, grid_x, grid_y + 1));
-                img.draw_line_with_offset(pos, get_real_xy(grid_x, grid_y + 1), r);
+                img.draw_line_with_offset(pos, get_real_xy(grid_x, grid_y + 1), radius);
             },
             _ => {}
         }
