@@ -39,6 +39,18 @@ impl ASTNode {
         format!("{:#?}", self)
     }
 
+    pub fn repr(&self) -> &str {
+        match self {
+            ASTNode::Identifier { name } => name,
+            ASTNode::Literal { value } => if *value { "1" } else { "0" },
+            ASTNode::Not { .. } => "¬",
+            ASTNode::And { .. } => "∧",
+            ASTNode::Or { .. } => "∨",
+            ASTNode::Implies { .. } => "⇒",
+            ASTNode::IfAndOnlyIf { .. } => "⟷",
+        }
+    }
+
     #[cfg(not(feature = "serde"))]
     pub fn as_json(&self) -> String {
         match self {
