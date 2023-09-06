@@ -6,7 +6,7 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://paoloose.site',
-  base: import.meta.env.DEV ? '/' : '/discrete',
+  base: '/discrete-mathematics',
   integrations: [react()],
   vite: {
     plugins: [wasm(), topLevelAwait()]
