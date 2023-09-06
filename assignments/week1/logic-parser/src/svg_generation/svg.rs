@@ -20,12 +20,11 @@ impl Svg {
     pub fn draw_circle(&mut self, pos: (f32, f32), radius: f32) {
         self.elements.push(
             format!(
-                "<circle cx='{cx}' cy='{cy}' r='{r}' stroke='{stroke}' stroke-width='{sw}' fill='none' />",
+                "<circle cx='{cx}' cy='{cy}' r='{r}' fill='none' stroke='{stroke}' />",
                 cx = pos.0,
                 cy = pos.1,
                 r = radius,
                 stroke = self.stroke,
-                sw = self.stroke_width
             )
         );
     }
@@ -33,13 +32,12 @@ impl Svg {
     pub fn draw_line(&mut self, start: (f32, f32), end: (f32, f32)) {
         self.elements.push(
             format!(
-                "<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}' stroke='black' stroke='{stroke}' stroke-width='{sw}' />",
+                "<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}' stroke='{stroke}' />",
                 x1 = start.0,
                 y1 = start.1,
                 x2 = end.0,
                 y2 = end.1,
                 stroke = self.stroke,
-                sw = self.stroke_width
             )
         );
     }
@@ -49,13 +47,12 @@ impl Svg {
 
         self.elements.push(
             format!(
-                "<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}' stroke='black' stroke='{stroke}' stroke-width='{sw}' stroke-dasharray='{darr} {offset}' stroke-dashoffset='-{offset}' />",
+                "<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}' stroke='{stroke}' stroke-dasharray='{darr} {offset}' stroke-dashoffset='-{offset}' />",
                 x1 = start.0,
                 y1 = start.1,
                 x2 = end.0,
                 y2 = end.1,
                 stroke = self.stroke,
-                sw = self.stroke_width,
                 darr = line_length - (2f32 * offset)
             )
         );
@@ -90,8 +87,9 @@ impl Svg {
 
     pub fn as_xml(&self) -> String {
         format!(
-            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='{vb}'>{elements}</svg>",
+            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='{vb}' stroke-width='{sw}'>{elements}</svg>",
             vb = format!("{x} {y} {w} {h}", x = self.view_box.0, y = self.view_box.1, w = self.view_box.2, h = self.view_box.3),
+            sw = self.stroke_width,
             elements = self.elements.join("\n")
         )
     }

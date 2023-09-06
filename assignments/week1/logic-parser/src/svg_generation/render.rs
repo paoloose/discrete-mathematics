@@ -36,16 +36,17 @@ static FONT_SIZE: u32 = 12;
 ///
 /// It is highly recommended that you choose `sx >= r` and `sy >= 2r`.
 pub fn render_to_svg(ast: ASTNode, xsep: f32, ysep: f32, radius: f32) -> Svg {
-    let n = ast_depth(&ast) as i32; // >= 1
-    let middle_grid = f32::powi(2_f32, n - 1) as u32 - 1;
+    let n = ast_depth(&ast); // >= 1
+    let middle_grid = f32::powi(2_f32, n as i32 - 1) as u32 - 1;
     let padding = radius;
 
-    let width = 2_f32 * middle_grid as f32 * xsep + (padding * 2_f32);
-    let height = ysep * (n - 1) as f32 + (padding * 2_f32);
+    let stroke_width = 1f32;
+    let width = 2_f32 * middle_grid as f32 * xsep + ((padding + stroke_width) * 2_f32);
+    let height = ysep * (n - 1) as f32 + ((padding + stroke_width) * 2_f32);
 
     let get_real_xy = |grid_x: u32, grid_y: u32| {
-        let x: f32 = grid_x as f32 * xsep + padding;
-        let y: f32 = grid_y as f32 * ysep + padding;
+        let x: f32 = grid_x as f32 * xsep + padding + stroke_width;
+        let y: f32 = grid_y as f32 * ysep + padding + stroke_width;
 
         (x, y)
     };
@@ -60,7 +61,7 @@ pub fn render_to_svg(ast: ASTNode, xsep: f32, ysep: f32, radius: f32) -> Svg {
         let (node, grid_x, grid_y) = stack.pop().unwrap();
         let pos = get_real_xy(grid_x, grid_y);
 
-        let next_step = u32::pow(2, (n as u32) - (grid_y + 1)) / 2;
+        let next_step = u32::pow(2, n - (grid_y + 1)) / 2;
         img.draw_circle_with_text(pos, radius, node.repr(), FONT_SIZE);
 
         match node {
