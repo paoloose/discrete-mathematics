@@ -2,23 +2,14 @@ use crate::errors::ParserError;
 use crate::lexing::token::{Token, TokenKind};
 use ParserError::{UnexpectedToken, UnexpectedEOF};
 
+use super::node::ASTNode;
+
 pub type Result<T> = std::result::Result<T, ParserError>;
 
 #[derive(Debug)]
 pub struct Parser<'a> {
     tokens: &'a Vec<Token>,
     pos: usize
-}
-
-#[derive(Debug)]
-pub enum ASTNode {
-    Identifier(String),
-    Literal(bool),
-    Not(Box<ASTNode>),
-    And(Box<ASTNode>, Box<ASTNode>),
-    Or(Box<ASTNode>, Box<ASTNode>),
-    Implies(Box<ASTNode>, Box<ASTNode>),
-    IfAndOnlyIf(Box<ASTNode>, Box<ASTNode>),
 }
 
 impl Parser<'_> {
@@ -48,17 +39,17 @@ impl Parser<'_> {
         match self.peek().cloned() {
             Some(TokenKind::Implies) => {
                 self.consume();
-                Ok(ASTNode::Implies(
-                    Box::new(l_term),
-                    Box::new(self.parse_expression()?))
-                )
+                Ok(ASTNode::Implies {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_expression()?)
+                })
             },
             Some(TokenKind::IfAndOnlyIf) => {
                 self.consume();
-                Ok(ASTNode::IfAndOnlyIf(
-                    Box::new(l_term),
-                    Box::new(self.parse_expression()?))
-                )
+                Ok(ASTNode::IfAndOnlyIf {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_expression()?)
+                })
             },
             Some(_) => Ok(l_term),
             None => Ok(l_term)
@@ -71,17 +62,17 @@ impl Parser<'_> {
         match self.peek().cloned() {
             Some(TokenKind::And) => {
                 self.consume();
-                Ok(ASTNode::And(
-                    Box::new(l_term),
-                    Box::new(self.parse_term()?))
-                )
+                Ok(ASTNode::And {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_term()?)
+                })
             },
             Some(TokenKind::Or) => {
                 self.consume();
-                Ok(ASTNode::Or(
-                    Box::new(l_term),
-                    Box::new(self.parse_term()?))
-                )
+                Ok(ASTNode::Or {
+                    left: Box::new(l_term),
+                    right: Box::new(self.parse_term()?)
+                })
             },
             Some(_) => Ok(l_term),
             None => Ok(l_term)
@@ -102,14 +93,14 @@ impl Parser<'_> {
 
         match next_token.kind {
             TokenKind::Identifier(name) => {
-                Ok(ASTNode::Identifier(name.to_owned()))
+                Ok(ASTNode::Identifier { name: name.to_owned() })
             },
             TokenKind::Literal(boolean) => {
-                Ok(ASTNode::Literal(boolean))
+                Ok(ASTNode::Literal { value: boolean })
             },
             TokenKind::Not => {
                 let prop = self.parse_proposition()?;
-                Ok(ASTNode::Not(Box::new(prop)))
+                Ok(ASTNode::Not{ operand: Box::new(prop) })
             },
             TokenKind::OpenParen => {
                 let expr = self.parse_expression()?;
@@ -143,68 +134,6 @@ impl Parser<'_> {
     }
 }
 
-impl ASTNode {
-    pub fn as_string(&self) -> String {
-        format!("{:#?}", self)
-    }
-
-    pub fn as_json(&self) -> String {
-        match self {
-            ASTNode::Identifier(s) => {
-                format!(r###"{{
-                    "type": "identifier",
-                    "name": "{s}"
-                }}"###)
-            },
-            ASTNode::Literal(boolean) => {
-                format!(r###"{{
-                    "type": "literal",
-                    "value": {boolean}
-                }}"###)
-            },
-            ASTNode::Not(expr) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "not",
-                    "expr": {expr}
-                }}"###, expr=expr.as_json())
-            },
-            ASTNode::And(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "and",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::Or(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "or",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::Implies(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "implies",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            },
-            ASTNode::IfAndOnlyIf(left, right) => {
-                format!(r###"{{
-                    "type": "operator",
-                    "name": "iff",
-                    "left": {left},
-                    "right": {right}
-                }}"###, left=left.as_json(), right=right.as_json())
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -215,16 +144,14 @@ mod test {
     #[test]
     fn complex_json_rendered_properly() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("((p || q)) => (q & ~(r))").parse()?;
+        let tokens = Lexer::new("((p || q)) => (q & ~(r))").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "implies",
+            "type": "operator.implies",
             "left": {
-                "type": "operator",
-                "name": "or",
+                "type": "operator.or",
                 "left": {
                     "type": "identifier",
                     "name": "p"
@@ -235,16 +162,14 @@ mod test {
                 }
             },
             "right": {
-                "type": "operator",
-                "name": "and",
+                "type": "operator.and",
                 "left": {
                     "type": "identifier",
                     "name": "q"
                 },
                 "right": {
-                    "type": "operator",
-                    "name": "not",
-                    "expr": {
+                    "type": "operator.not",
+                    "operand": {
                         "type": "identifier",
                         "name": "r"
                     }
@@ -257,20 +182,17 @@ mod test {
     #[test]
     fn multiple_negation_works() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("~~~negate_me").parse()?;
+        let tokens = Lexer::new("~~~negate_me").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "not",
-            "expr": {
-                "type": "operator",
-                "name": "not",
-                "expr": {
-                    "type": "operator",
-                    "name": "not",
-                    "expr": {
+            "type": "operator.not",
+            "operand": {
+                "type": "operator.not",
+                "operand": {
+                    "type": "operator.not",
+                    "operand": {
                         "type": "identifier",
                         "name": "negate_me"
                     }
@@ -283,16 +205,14 @@ mod test {
     #[test]
     fn iff_and_implies_work_together() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("(a => b) <=> c").parse()?;
+        let tokens = Lexer::new("(a => b) <=> c").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "iff",
+            "type": "operator.iff",
             "left": {
-                "type": "operator",
-                "name": "implies",
+                "type": "operator.implies",
                 "left": {
                     "type": "identifier",
                     "name": "a"
@@ -313,16 +233,14 @@ mod test {
     #[test]
     fn alternative_syntax_work() -> Result<(), Box<dyn Error>> {
         use assert_json::assert_json;
-        let tokens = Lexer::new("(a & b) && ((b | c) || b)").parse()?;
+        let tokens = Lexer::new("(a & b) && ((b | c) || b)").tokenize()?;
         let ast = Parser::new(&tokens).parse()?;
         let result = ast.as_json();
 
         assert_json!(result.as_str(), {
-            "type": "operator",
-            "name": "and",
+            "type": "operator.and",
             "left": {
-                "type": "operator",
-                "name": "and",
+                "type": "operator.and",
                 "left": {
                     "type": "identifier",
                     "name": "a"
@@ -333,11 +251,9 @@ mod test {
                 }
             },
             "right": {
-                "type": "operator",
-                "name": "or",
+                "type": "operator.or",
                 "left": {
-                    "type": "operator",
-                    "name": "or",
+                    "type": "operator.or",
                     "left": {
                         "type": "identifier",
                         "name": "b"
@@ -358,7 +274,7 @@ mod test {
 
     #[test]
     fn unmatched_paren_left_results_on_error() {
-        let tokens = Lexer::new("((a => b) <=> c").parse().unwrap();
+        let tokens = Lexer::new("((a => b) <=> c").tokenize().unwrap();
         let parse_error = Parser::new(&tokens).parse().unwrap_err();
 
         match parse_error {
@@ -371,7 +287,7 @@ mod test {
 
     #[test]
     fn unmatched_paren_right_results_on_error() {
-        let tokens = Lexer::new("(a => b)) <=> c").parse().unwrap();
+        let tokens = Lexer::new("(a => b)) <=> c").tokenize().unwrap();
 
         let parse_error = Parser::new(&tokens).parse().unwrap_err();
         match parse_error {

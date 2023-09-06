@@ -7,8 +7,16 @@ edition = "2021"
 name = "logic_parser"
 crate-type = ["lib"]
 
+[features]
+default = []
+svg-generation = []
+serde = ["dep:serde", "dep:serde_json"]
+
 [dependencies]
 thiserror = "1.0.47"
+# Optional serialization and deseralization for the ASTNode
+serde = { version = "1.0.188", optional = true, features = ["derive"] }
+serde_json = { version = "1.0.105", optional = true }
 
 [dev-dependencies]
 assert_json = "0.1.0"

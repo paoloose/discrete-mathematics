@@ -1,31 +1,31 @@
 ---
-import { Image } from 'astro:assets';
-import fs from 'node:fs/promises';
+import fs from "node:fs/promises";
+import { Image } from "astro:assets";
 
-import Link from '@components/Link.astro';
-import Layout from '@layouts/Layout.astro';
-import clouds from '@assets/clouds.gif';
+import Layout from "@layouts/Layout.astro";
+import WeekItem from "@components/WeekItem.astro";
+import clouds from "@assets/clouds.gif";
 
-const weeks = await fs.readdir('../assignments');
+const weeks = await fs.readdir("../assignments");
 ---
 
 <Layout title="Discrete Mathematics portfolio">
-	<header>Paolo Flores</header>
-	<main>
-		<h1>Portafolio de matemática discreta</h1>
-		<Image
-			width={300}
-			src={clouds} alt="Clouds moving across the sky"
-		/>
-		<div>
-			<h3>Assignments</h3>
-			{
-				weeks.map((week) => (
-					<li>
-						<Link href={`/assignments/${week}`}>{week}</Link>
-					</li>
-				))
-			}
-		</div>
-	</main>
+  <header>Paolo Flores</header>
+  <main>
+    <h1>Portafolio de Matemática Discreta</h1>
+    <section>
+      <div>Flores Cóngora Paolo</div>
+      <div>Ingeniería de Software</div>
+    </section>
+    <Image width={300} src={clouds} alt="Clouds moving across the sky" />
+    <div>
+      <h3>Assignments</h3>
+      {
+        weeks.map(async (week) => {
+          const page = await import(`./assignments/${week}.astro`);
+          return <WeekItem page={page} />;
+        })
+      }
+    </div>
+  </main>
 </Layout>

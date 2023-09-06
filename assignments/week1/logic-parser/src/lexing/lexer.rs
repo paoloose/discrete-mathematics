@@ -14,7 +14,7 @@ impl<'a> Lexer<'a> {
         Lexer { src: expr.clone(), pos: 0 }
     }
 
-    pub fn parse(mut self) -> Result<Vec<Token>> {
+    pub fn tokenize(mut self) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
 
         while let Some(token) = self.next_token()? {
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn literal_booleans_work() {
         let lexer = Lexer::new("false & true");
-        let tokens = lexer.parse().unwrap();
+        let tokens = lexer.tokenize().unwrap();
         assert_eq!(
             tokens.iter().map(|t| &t.kind).collect::<Vec<&TokenKind>>(),
             vec![
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn skip_whitespaces_works_properly() {
         let lexer = Lexer::new("\t\r puppies");
-        let tokens = lexer.parse().unwrap();
+        let tokens = lexer.tokenize().unwrap();
         assert_eq!(tokens.len(), 1);
         assert_eq!(tokens[0].kind, TokenKind::Identifier("puppies".into()));
     }
@@ -174,9 +174,9 @@ mod tests {
     #[should_panic]
     fn propositions_cant_start_with_numbers() {
         let lexer = Lexer::new("pqrs");
-        if !lexer.parse().is_ok() { return; }
+        if !lexer.tokenize().is_ok() { return; }
 
         let lexer = Lexer::new("69p");
-        let _ = lexer.parse().unwrap();
+        let _ = lexer.tokenize().unwrap();
     }
 }

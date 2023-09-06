@@ -1,15 +1,10 @@
-use std::panic;
-use serde_json::json;
 use wasm_bindgen::prelude::*;
+use serde_json::json;
 
 use logic_parser::lexing::Lexer;
-use logic_parser::parsing::Parser;
+use logic_parser::parsing::{Parser, ASTNode};
 use logic_parser::errors::{LexerError, ParserError};
-
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
+use logic_parser::svg_generation::render::render_to_svg;
 
 macro_rules! generate_json_error {
     ($span: expr, $error: expr) => {
@@ -23,11 +18,11 @@ macro_rules! generate_json_error {
 
 #[wasm_bindgen]
 pub fn parse_expression(expr: &str) -> String {
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     // "p & q" -> [ & [p] [q]]
     // "p & (q => s)" -> [ & [p] [ => [q] [s]]]
     // "(p | q) & (q => s)" -> [ | [p] [q] ]
-    let tokens = match Lexer::new(expr).parse() {
+    let tokens = match Lexer::new(expr).tokenize() {
         Ok(t) => t,
         Err(ref e) => {
             match e {
@@ -61,6 +56,19 @@ pub fn parse_expression(expr: &str) -> String {
         }}"###,
         ast=ast.as_json()
     )
+}
+
+#[wasm_bindgen]
+pub fn generate_svg(ast: JsValue, xsep: f32, ysep: f32, radius: f32) -> String {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
+    let ast: ASTNode = match serde_wasm_bindgen::from_value(ast) {
+        Ok(ast) => ast,
+        Err(_) => return String::new()
+    };
+
+    let svg = render_to_svg(ast, xsep, ysep, radius);
+    svg.as_xml()
 }
 
 #[cfg(test)]
