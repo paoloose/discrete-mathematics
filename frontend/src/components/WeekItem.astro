@@ -1,0 +1,43 @@
+---
+import Link from "@components/Link.astro";
+import type { WeekPage } from '@types';
+
+type Props = WeekPage;
+
+const { page } = Astro.props;
+const { metadata } = page;
+---
+
+<li>
+  <Link href={page.url}>
+    <h4>{metadata.title}</h4>
+  </Link>
+  <p>{metadata.description}</p>
+</li>
+
+<style>
+  a {
+    display: block;
+    padding: 0;
+    margin: 0px 0px 10px 0px;
+  }
+
+  h4 {
+    padding: 0;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    /* put balance here */
+  }
+
+  li {
+    display: inline-block;
+    list-style: none;
+  }
+
+  a:visited {
+    color: unset;
+  }
+</style>

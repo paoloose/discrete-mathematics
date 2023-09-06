@@ -38,7 +38,7 @@ static FONT_SIZE: u32 = 12;
 pub fn render_to_svg(ast: ASTNode, xsep: f32, ysep: f32, radius: f32) -> Svg {
     let n = ast_depth(&ast); // >= 1
     let middle_grid = f32::powi(2_f32, n as i32 - 1) as u32 - 1;
-    let padding = radius;
+    let padding = radius + 1_f32;
 
     let stroke_width = 1f32;
     let width = 2_f32 * middle_grid as f32 * xsep + ((padding + stroke_width) * 2_f32);

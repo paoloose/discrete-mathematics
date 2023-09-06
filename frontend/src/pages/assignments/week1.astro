@@ -4,7 +4,8 @@ import Layout from '@layouts/Layout.astro';
 import type { WeekMetadata } from '@types';
 
 export const metadata: WeekMetadata = {
-  title: 'Logic parser!!!!!',
+  title: 'Boolean Algebra and Logical expressions',
+  description: 'This week I built a logic parser using the concepts of lexing, parsing and syntax trees.',
   img: ''
 }
 ---
@@ -12,5 +13,10 @@ export const metadata: WeekMetadata = {
 <Layout title="Assignments: semana 1">
   <h1>{metadata.title}</h1>
   <LogicParser client:only="react" />
-  <canvas id="canvas"></canvas>
 </Layout>
+
+<style>
+  svg {
+    display: none;
+  }
+</style>
