@@ -27,7 +27,7 @@
 
             if (parsed.status === "success") {
                 const render = document.getElementById("renderization");
-                render.innerHTML = generate_svg(parsed.ast);
+                render.innerHTML = generate_svg(parsed.ast, 20, 40, 15);
             }
             output.innerText = JSON.stringify(parsed, null, 4);
         })
