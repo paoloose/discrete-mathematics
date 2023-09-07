@@ -24,18 +24,26 @@ const { title } = Astro.props;
 </html>
 
 <style is:global>
+  :root{
+    --border-color: #d9d9d9;
+    --header-height: 3rem;
+  }
+
   html {
+    font-size: 1rem;
   }
 
   * {
-    /* margin: 0;
-    padding: 0; */
     box-sizing: border-box;
   }
 
+  a:visited {
+    color: unset;
+  }
+
   body {
-    margin: auto;
-    max-width: 600px;
+    margin: 0;
+    min-height: 100vh;
   }
 
   code {
@@ -48,9 +56,5 @@ const { title } = Astro.props;
       Bitstream Vera Sans Mono,
       Courier New,
       monospace;
-  }
-
-  header {
-    border: 1px solid black;
   }
 </style>

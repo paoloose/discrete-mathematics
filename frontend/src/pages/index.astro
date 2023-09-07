@@ -4,28 +4,95 @@ import { Image } from "astro:assets";
 
 import Layout from "@layouts/Layout.astro";
 import WeekItem from "@components/WeekItem.astro";
+import Header from "@components/Header.astro";
 import clouds from "@assets/clouds.gif";
+import githubLogo from "@assets/github_light.svg";
 
 const weeks = await fs.readdir("../assignments");
 ---
 
 <Layout title="Discrete Mathematics portfolio">
-  <header>Paolo Flores</header>
+  <Header />
   <main>
-    <h1>Portafolio de Matemática Discreta</h1>
-    <section>
-      <div>Flores Cóngora Paolo</div>
-      <div>Ingeniería de Software</div>
+    <section id="heading">
+      <div id="information">
+        <section>
+          <h1>Discrete Mathematics</h1>
+          <h2>Interactive class portfolio</h2>
+          <h3 id="alumni">Flores Cóngora, Paolo</h3>
+          <div id="collegue">Software Engineering</div>
+          <div>National University of San Marcos </div>
+        </section>
+        <footer>
+          <Image src={githubLogo} alt="The GitHub logo" />
+          <a href="https://github.com/paoloose/discrete-mathematics" target="_blank">@paoloose/discrete-mathematics</a>
+        </footer>
+      </div>
+      <Image width={350} src={clouds} alt="Clouds moving across the sky" />
     </section>
-    <Image width={300} src={clouds} alt="Clouds moving across the sky" />
-    <div>
-      <h3>Assignments</h3>
+    <section id="assignments">
+      <h2>Assignments</h2>
       {
-        weeks.map(async (week) => {
+        weeks.map(async (week, i) => {
           const page = await import(`./assignments/${week}.astro`);
           return <WeekItem page={page} />;
         })
       }
-    </div>
+    </section>
   </main>
 </Layout>
+
+<style lang="scss">
+  main {
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    max-width: 100ch;
+  }
+
+  #heading {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.4rem;
+  }
+
+  #information {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    h1 {
+      font-size: 1.9rem;
+      margin: 0px;
+      margin-bottom: 0.25rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      font-weight: 300;
+      margin-bottom: 24px;
+    }
+
+    #alumni {
+      font-size: 1.1rem;
+    }
+    #alumni, #collegue {
+      margin: 0px 0px 4px 0px;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+
+      img {
+        width: 20px;
+        margin-right: 6px;
+      }
+    }
+  }
+
+  #assignments {
+    border-top: 1px solid var(--border-color);
+  }
+
+</style>
