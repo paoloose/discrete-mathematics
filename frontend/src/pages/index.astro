@@ -19,16 +19,17 @@ const weeks = await fs.readdir("../assignments");
         <section>
           <h1>Discrete Mathematics</h1>
           <h2>Interactive class portfolio</h2>
+          <Image id="alt-clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
           <h3 id="alumni">Flores Cóngora, Paolo</h3>
           <div id="collegue">Software Engineering</div>
           <div>National University of San Marcos </div>
         </section>
-        <footer>
+        <footer id="github">
           <Image src={githubLogo} alt="The GitHub logo" />
           <a href="https://github.com/paoloose/discrete-mathematics" target="_blank">@paoloose/discrete-mathematics</a>
         </footer>
       </div>
-      <Image width={350} src={clouds} alt="Clouds moving across the sky" />
+      <Image id="clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
     </section>
     <section id="assignments">
       <h2>Assignments</h2>
@@ -45,14 +46,29 @@ const weeks = await fs.readdir("../assignments");
 <style lang="scss">
   main {
     margin: 0 auto;
-    padding: 3rem 2rem;
+    padding: 3rem 1.5rem;
     max-width: 100ch;
+
+    img {
+      margin-right: 10px;
+    }
   }
 
   #heading {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.4rem;
+
+    #clouds {
+      margin-left: 8px;
+      align-self: flex-end;
+    }
+    #alt-clouds {
+      display: none;
+      align-self: flex-end;
+      object-fit: cover;
+      max-width: 100%;
+    }
   }
 
   #information {
@@ -83,11 +99,48 @@ const weeks = await fs.readdir("../assignments");
     footer {
       display: flex;
       align-items: center;
+      margin-top: 1rem;
 
       img {
         width: 20px;
         margin-right: 6px;
       }
+    }
+  }
+
+  @media screen and (max-width: 680px) {
+    #clouds {
+      width: 300px;
+      height: 100%;
+    }
+  }
+
+  @media screen and (max-width: 580px) {
+    #clouds {
+      width: 280px;
+      height: 100%;
+    }
+  }
+
+  @media screen and (max-width: 520px) {
+    #heading {
+      flex-direction: column;
+    }
+    #clouds {
+      display: none;
+      max-width: 300px;
+      object-fit: cover;
+    }
+    #alt-clouds {
+      display: block !important;
+      margin-bottom: 18px;
+    }
+    #github {
+      display: none;
+    }
+
+    #information h2 {
+      margin-bottom: 14px;
     }
   }
 
