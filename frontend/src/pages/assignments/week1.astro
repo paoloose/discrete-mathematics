@@ -1,5 +1,6 @@
 ---
 import LogicParser from '@components/LogicParser';
+import Header from '@components/Header.astro';
 import Layout from '@layouts/Layout.astro';
 import type { WeekMetadata } from '@types';
 
@@ -11,6 +12,7 @@ export const metadata: WeekMetadata = {
 ---
 
 <Layout title="Assignments: semana 1">
+  <Header />
   <h1>{metadata.title}</h1>
   <LogicParser client:only="react" />
 </Layout>

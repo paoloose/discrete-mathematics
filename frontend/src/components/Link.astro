@@ -12,7 +12,7 @@ if (typeof href !== 'string') {
 
 let url: string = '';
 
-if (href.startsWith(BASE_URL)) {
+if (href.startsWith(BASE_URL) || url.startsWith('http')) {
   url = href;
 }
 else {
