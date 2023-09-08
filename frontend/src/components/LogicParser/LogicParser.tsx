@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import SVGRender from '@components/SVGRender';
 import type { TargetedEvent } from 'preact/compat';
+import type { LogicParsingResult } from '@types';
 
 function LogicParser() {
   const [output, setOutput] = useState('');
@@ -15,7 +16,7 @@ function LogicParser() {
 
     const { parse_expression, generate_svg } = await import('logic-parsers');
 
-    const parsed = JSON.parse(parse_expression(inputRef.current.value));
+    const parsed = JSON.parse(parse_expression(inputRef.current.value)) as LogicParsingResult;
     const formattedOutput = JSON.stringify(parsed, null, 4);
 
     if (parsed.status === 'success') {
