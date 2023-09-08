@@ -1,14 +1,14 @@
 ---
-import fs from "node:fs/promises";
-import { Image } from "astro:assets";
+import fs from 'node:fs/promises';
+import { Image } from 'astro:assets';
 
-import Layout from "@layouts/Layout.astro";
-import WeekItem from "@components/WeekItem.astro";
-import Header from "@components/Header.astro";
-import clouds from "@assets/clouds.gif";
-import githubLogo from "@assets/github_light.svg";
+import Layout from '@layouts/Layout.astro';
+import WeekItem from '@components/WeekItem.astro';
+import Header from '@components/Header.astro';
+import clouds from '@assets/clouds.webp';
+import githubLogo from '@assets/github_light.svg';
 
-const weeks = await fs.readdir("../assignments");
+const weeks = await fs.readdir('../assignments');
 ---
 
 <Layout title="Discrete Mathematics portfolio">
@@ -19,7 +19,7 @@ const weeks = await fs.readdir("../assignments");
         <section>
           <h1>Discrete Mathematics</h1>
           <h2>Interactive class portfolio</h2>
-          <Image id="alt-clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
+          <Image class="alt-clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
           <h3 id="alumni">Flores Cóngora, Paolo</h3>
           <div id="collegue">Software Engineering</div>
           <div>National University of San Marcos </div>
@@ -29,7 +29,7 @@ const weeks = await fs.readdir("../assignments");
           <a href="https://github.com/paoloose/discrete-mathematics" target="_blank">@paoloose/discrete-mathematics</a>
         </footer>
       </div>
-      <Image id="clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
+      <Image class="clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
     </section>
     <section id="assignments">
       <h2>Assignments</h2>
@@ -59,11 +59,11 @@ const weeks = await fs.readdir("../assignments");
     justify-content: space-between;
     margin-bottom: 1.4rem;
 
-    #clouds {
+    .clouds {
       margin-left: 8px;
       align-self: flex-end;
     }
-    #alt-clouds {
+    .alt-clouds {
       display: none;
       align-self: flex-end;
       object-fit: cover;
@@ -109,14 +109,14 @@ const weeks = await fs.readdir("../assignments");
   }
 
   @media screen and (max-width: 680px) {
-    #clouds {
+    .clouds {
       width: 300px;
       height: 100%;
     }
   }
 
   @media screen and (max-width: 580px) {
-    #clouds {
+    .clouds {
       width: 280px;
       height: 100%;
     }
@@ -126,12 +126,12 @@ const weeks = await fs.readdir("../assignments");
     #heading {
       flex-direction: column;
     }
-    #clouds {
+    .clouds {
       display: none;
       max-width: 300px;
       object-fit: cover;
     }
-    #alt-clouds {
+    .alt-clouds {
       display: block !important;
       margin-bottom: 18px;
     }
