@@ -12,22 +12,28 @@ export type WeekPage = {
   }
 }
 
-type ASTBinaryOperator = {
+export type ASTBinaryOperator = {
   type: 'operator.implies' | 'operator.iff' | 'operator.or' | 'operator.and',
-  left: ASTNode
+  left: ASTNode,
+  right: ASTNode
 }
 
-type ASTLiteral = {
+export type ASTLiteral = {
   type: 'literal',
   value: boolean
 }
 
-type ASTUnaryOperator = {
+export type ASTIdentifier = {
+  type: 'identifier',
+  name: string
+}
+
+export type ASTUnaryOperator = {
   type: 'operator.not',
   operand: ASTNode
 }
 
-type ASTNode = ASTBinaryOperator | ASTLiteral | ASTUnaryOperator;
+export type ASTNode = ASTBinaryOperator | ASTUnaryOperator | ASTLiteral | ASTIdentifier;
 
 export type LogicParsingResult = {
   status: 'success' | 'error',
