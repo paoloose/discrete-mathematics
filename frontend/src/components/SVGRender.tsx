@@ -1,7 +1,7 @@
 function SVGRender({ svgStr }: { svgStr: string }) {
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: svgStr }}></div>
+    <img src={`data:image/svg+xml;utf8,${encodeURI(svgStr)}`} />
   );
 }
 
