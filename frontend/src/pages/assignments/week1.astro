@@ -39,6 +39,27 @@ export const metadata: WeekMetadata = {
 </style>
 
 <style is:inline lang="scss">
-  #logic-parser input {
+  #logic-parser textarea {
+    padding: 4px;
+    font-size: 1.1rem;
+  }
+
+  #logic-parser #input-wrapper {
+    position: relative;
+    border: 1px solid black;
+    height: 100px;
+  }
+
+  #logic-parser #input-wrapper div {
+    height: 100%;
+  }
+
+  #logic-parser #input-wrapper textarea {
+    position: absolute;
+    top: 0;
+    max-width: 0;
+    padding: 0;
+    border: none;
+    resize: none;
   }
 </style>

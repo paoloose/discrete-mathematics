@@ -16,7 +16,6 @@ export function analizeTree(tree: ASTNode) {
     if (!node) break;
 
     if (node.type === 'identifier') {
-      console.log({node})
     }
 
     if (nodeIsBinaryOperator(node)) {

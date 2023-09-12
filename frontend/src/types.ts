@@ -33,9 +33,57 @@ export type ASTUnaryOperator = {
   operand: ASTNode
 }
 
-export type ASTNode = ASTBinaryOperator | ASTUnaryOperator | ASTLiteral | ASTIdentifier;
+export type ASTNode =
+  ASTBinaryOperator |
+  ASTUnaryOperator |
+  ASTLiteral |
+  ASTIdentifier;
 
 export type LogicParsingResult = {
   status: 'success' | 'error',
   ast: ASTNode
 }
+
+type TokenIdentifier = {
+  kind: 'identifier',
+  value: string
+}
+type TokenLiteral = {
+  kind: 'literal',
+  value: boolean
+}
+type TokenNot = {
+  kind: 'not';
+}
+type TokenAnd = {
+  kind: 'and';
+}
+type TokenOr = {
+  kind: 'or';
+}
+type TokenImplies = {
+  kind: 'implies';
+}
+type TokenIfAndOnlyIf = {
+  kind: 'iff';
+}
+type TokenOpenParen = {
+  kind: 'openparen';
+}
+type TokenCloseParen = {
+  kind: 'closeparen';
+}
+
+export type TokenKind =
+  TokenIdentifier |
+  TokenLiteral |
+  TokenNot |
+  TokenAnd |
+  TokenOr |
+  TokenImplies |
+  TokenIdentifier |
+  TokenIfAndOnlyIf |
+  TokenOpenParen |
+  TokenCloseParen;
+
+export type Token = TokenKind & { span: [start: number, end: number] };
