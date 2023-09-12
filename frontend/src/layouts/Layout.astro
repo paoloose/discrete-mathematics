@@ -24,6 +24,13 @@ const { title } = Astro.props;
 </html>
 
 <style is:global>
+  @font-face {
+    font-family: 'mathfont';
+    src: url('/discrete-mathematics/fonts/mathfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+
   :root{
     --border-color: #d9d9d9;
     --header-height: 3rem;
@@ -31,7 +38,7 @@ const { title } = Astro.props;
 
   html {
     font-size: 1rem;
-    font-family: serif, 'Times New Roman', Times;
+    font-family: 'Times New Roman', Times;
   }
 
   * {

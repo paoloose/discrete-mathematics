@@ -3,6 +3,7 @@ import LogicParser from '@components/LogicParser/LogicParser';
 import Header from '@components/Header.astro';
 import Layout from '@layouts/Layout.astro';
 import type { WeekMetadata } from '@types';
+import Link from '@components/Link.astro';
 
 export const metadata: WeekMetadata = {
   title: 'Boolean Algebra and Logical expressions',
@@ -13,24 +14,29 @@ export const metadata: WeekMetadata = {
 
 <Layout title="Assignments: semana 1">
   <Header />
-  <section>
-    <h1>{metadata.title}</h1>
-  </section>
   <main>
+    <Link href="/">Go back</Link>
+    <section>
+      <h1>{metadata.title}</h1>
+    </section>
     <section id="logic-parser">
       <LogicParser client:load />
     </section>
   </main>
 </Layout>
 
-<style>
+<style lang="scss">
+  html {
+    scrollbar-gutter: stable;
+  }
+
   main {
-    display: flex;
-    align-items: center;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    max-width: 100ch;
   }
 
   section {
-    padding: 0 1.5rem;
   }
 
   svg {
@@ -39,27 +45,32 @@ export const metadata: WeekMetadata = {
 </style>
 
 <style is:inline lang="scss">
-  #logic-parser textarea {
-    padding: 4px;
-    font-size: 1.1rem;
-  }
-
   #logic-parser #input-wrapper {
-    position: relative;
-    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  #logic-parser #rendered-input {
+    display: grid;
+    font-family: 'mathfont';
+    font-variant-ligatures: additional-ligatures;
+    place-content: center;
     height: 100px;
+    font-size: 1.5rem;
+    border: 1px solid black;
+    overflow-x: auto;
   }
 
-  #logic-parser #input-wrapper div {
-    height: 100%;
+  #logic-parser #rendered-input .token {
+    margin-right: 2px;
   }
 
-  #logic-parser #input-wrapper textarea {
-    position: absolute;
-    top: 0;
-    max-width: 0;
-    padding: 0;
-    border: none;
-    resize: none;
+  #logic-parser input {
+    font-size: 1rem;
+  }
+
+  #logic-parser #svg-render {
+    margin-top: 20px;
   }
 </style>

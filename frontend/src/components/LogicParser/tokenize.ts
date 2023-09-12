@@ -45,9 +45,10 @@ export function tokenizeExpr(expr: string): Token[] {
   while (pos < expr.length) {
     skipWhitespaces();
     const c = peek();
+    if (!c) break;
+
     const start = pos;
     let tokenKind: TokenKind;
-    if (!c) break;
 
     if (c === '!' || c === '~') {
       consume();
