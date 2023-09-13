@@ -17,8 +17,11 @@ export const metadata: WeekMetadata = {
   <main>
     <Link href="/">Go back</Link>
     <section>
-      <h1>{metadata.title}</h1>
+      <h1>Evaluador y visualizador de proposiciones lógicas</h1>
     </section>
+    <p>
+        Escribe una proposición lógica par ser evaluada
+    </p>
     <section id="logic-parser">
       <LogicParser client:load />
     </section>
@@ -26,6 +29,9 @@ export const metadata: WeekMetadata = {
 </Layout>
 
 <style lang="scss">
+  h1 {
+    margin-top: 10px;
+  }
   html {
     scrollbar-gutter: stable;
   }
