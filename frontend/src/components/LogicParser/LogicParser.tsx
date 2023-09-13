@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import SVGRender from '@components/SVGRender';
 import type { TargetedEvent } from 'preact/compat';
-import type { ASTNode, LogicParsingResult, Token } from '@types';
+import type { ASTNode, LogicParsingResult } from '@types';
 import { analizeTree } from './analize';
 import { generateTable } from './generateTable';
 
 function LogicParser() {
-  const [input, setInput] = useState('p a => q');
+  const [input, setInput] = useState('p => (q & r)');
   const [output, setOutput] = useState('');
   const [ast, setAST] = useState<ASTNode | null>(null);
   const parsedInput = useRef('');
