@@ -39,10 +39,18 @@ export type ASTNode =
   ASTLiteral |
   ASTIdentifier;
 
-export type LogicParsingResult = {
-  status: 'success' | 'error',
+export type LogicParserSuccessResult = {
+  status: 'success',
   ast: ASTNode
 }
+
+export type LogicParserErrorResult = {
+  status: 'error',
+  error: string,
+  span: [start: number, end: number]
+}
+
+export type LogicParsingResult = LogicParserSuccessResult | LogicParserErrorResult;
 
 type TokenIdentifier = {
   kind: 'identifier',

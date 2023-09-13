@@ -12,7 +12,6 @@ function SVGRender({ ast }: { ast: any }) {
 
   useEffect(() => {
     renderSVG();
-    console.log({svgStr})
   });
 
   return (
