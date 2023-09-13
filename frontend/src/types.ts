@@ -33,9 +33,10 @@ export type ASTUnaryOperator = {
   operand: ASTNode
 }
 
+export type ASTOperator = ASTBinaryOperator | ASTUnaryOperator;
+
 export type ASTNode =
-  ASTBinaryOperator |
-  ASTUnaryOperator |
+  ASTOperator |
   ASTLiteral |
   ASTIdentifier;
 

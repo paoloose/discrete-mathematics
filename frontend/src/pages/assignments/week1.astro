@@ -53,6 +53,7 @@ export const metadata: WeekMetadata = {
 
   #logic-parser #rendered-input {
     display: grid;
+    grid-template-rows: 1 1;
     font-family: 'mathfont';
     font-variant-ligatures: additional-ligatures;
     place-content: center;
@@ -62,15 +63,92 @@ export const metadata: WeekMetadata = {
     overflow-x: auto;
   }
 
-  #logic-parser #rendered-input .token {
-    margin-right: 2px;
+  #logic-parser #rendered-input div {
+    margin: 0 auto;
+  }
+
+  #logic-parser #rendered-input #error-msg {
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+
+  #logic-parser #rendered-input .token.space {
+    font-size: 10px;
+  }
+
+  #logic-parser #rendered-input .token.error {
+    color: rgb(0, 0, 0);
+    text-decoration: underline;
+    text-decoration-color: red;
+    background-color: rgba(255, 0, 0, 0.2);
+    text-decoration-thickness: 2px;
   }
 
   #logic-parser input {
     font-size: 1rem;
+    padding: 4px 6px;
   }
 
   #logic-parser #svg-render {
     margin-top: 20px;
   }
+
+  #logic-parser #clickable-tokens {
+    background-color: #716a8f;
+  }
+
+  #logic-parser #clickable-tokens button {
+    background-color: transparent;
+    outline: 1px solid black;
+    margin: 5px;
+    padding: 4px 10px;
+    color: white;
+    background-color: #977ca5;
+    font-size: 1rem;
+    font-family: monospace;
+    border: none;
+  }
+
+  #logic-parser #tabs-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: stretch;
+    margin-bottom: 10px;
+    margin-top: 15px;
+  }
+
+  #logic-parser #tabs-buttons button {
+    background-color: transparent;
+    outline: 1px solid black;
+    color: white;
+    background-color: #977ca5;
+    font-size: 1rem;
+    font-family: monospace;
+    border: none;
+    flex-grow: 1;
+  }
+
+  #logic-parser #tabs-buttons button.active {
+    background-color: #716a8f;
+  }
+
+  table {
+    background: white;
+    font-size: 12pt;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th {
+    background: #eee;
+    border: 1px solid black;
+    font-weight: bold;
+    padding: 3px;
+  }
+
+  td {
+    border: 1px solid black;
+    padding: 5px;
+  }
+
 </style>
