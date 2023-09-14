@@ -4,6 +4,7 @@ import Header from '@components/Header.astro';
 import Layout from '@layouts/Layout.astro';
 import type { WeekMetadata } from '@types';
 import Link from '@components/Link.astro';
+import AvailableAtGithub from '@components/AvailableAtGithub.astro';
 
 export const metadata: WeekMetadata = {
   title: 'Boolean Algebra and Logical expressions',
@@ -18,9 +19,12 @@ export const metadata: WeekMetadata = {
     <Link href="/">Go back</Link>
     <section>
       <h1>Evaluador y visualizador de proposiciones lógicas</h1>
+      <AvailableAtGithub href="https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week1">
+        @paoloose/discrete-mathematics/week1
+      </AvailableAtGithub>
     </section>
     <p>
-        Escribe una proposición lógica par ser evaluada
+        Escribe una proposición lógica para ser evaluada.
     </p>
     <section id="logic-parser">
       <LogicParser client:load />
@@ -31,6 +35,7 @@ export const metadata: WeekMetadata = {
 <style lang="scss">
   h1 {
     margin-top: 10px;
+    margin-bottom: 0.5rem;
   }
   html {
     scrollbar-gutter: stable;
@@ -92,12 +97,52 @@ export const metadata: WeekMetadata = {
 
   #logic-parser input {
     font-size: 1rem;
-    padding: 4px 6px;
+    padding: 6px 8px;
   }
 
-  #logic-parser #svg-render {
+  #logic-parser #svg-render-img {
     margin-top: 20px;
   }
+
+  #logic-parser #params-title {
+    font-size: 1rem;
+    padding: 0;
+    margin: 0;
+    font-weight: 300;
+    text-decoration: underline;
+    margin-bottom: 6px;
+  }
+
+  #logic-parser #svg-params {
+    display: flex;
+  }
+
+  #logic-parser .svg-param {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  #logic-parser .svg-param input {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    scale: 0.9;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+
+  #logic-parser .svg-param input[type="range"]::-webkit-slider-runnable-track {
+    background: #e3d9e4;
+  }
+  #logic-parser .svg-param input[type="range"]::-moz-range-track {
+    background: #e3d9e4;
+  }
+
 
   #logic-parser #clickable-tokens {
     background-color: #716a8f;

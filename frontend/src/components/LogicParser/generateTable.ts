@@ -54,17 +54,11 @@ export function generateTable(tree: ASTNode): string[][] {
     }
   }
   operations.reverse();
-    const { identifiers } = analizeTree(tree);
+  const { identifiers } = analizeTree(tree);
   const generatedTable: string[][] = [[...identifiers.map(id => id.name), ...operations.map(operationToString)]];
 
   console.log({generatedTable})
   const combinations = Math.pow(2, identifiers.length);
-  // generate all possible variables combinatory
-  // p q r
-  // 0 0 0
-  // 0 0 1
-  // 0 1 0
-  // ...etc
 
   for (let i = 0; i < combinations; i++) {
     const row: string[] = [];

@@ -1,0 +1,28 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { Image } from 'astro:assets';
+import githubLogo from '@assets/github_light.svg';
+
+type Props = HTMLAttributes<'a'>;
+const { href } = Astro.props;
+---
+<span>
+  <Image src={githubLogo} alt="The GitHub logo" /> Available at <a {href} target="_blank"><slot/></a>
+</span>
+
+<style>
+  span {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  img {
+    width: 1rem;
+    margin-right: 6px;
+  }
+
+  a {
+    margin-left: 4px;
+  }
+</style>

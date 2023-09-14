@@ -17,7 +17,7 @@ function LogicParser() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const tabsViews = useRef(['Modo JSON', 'Modo árbol', 'Modo tabla']);
-  const [currentView, setCurrentView] = useState(2);
+  const [currentView, setCurrentView] = useState(1);
 
   const handleInput = async (_?: TargetedEvent<HTMLInputElement, Event>) => {
     if (!inputRef.current) return;
@@ -64,6 +64,7 @@ function LogicParser() {
         <input
           autocorrect="off"
           spellCheck={false}
+          placeholder="write => here"
           type="text"
           ref={inputRef}
           value={input}
