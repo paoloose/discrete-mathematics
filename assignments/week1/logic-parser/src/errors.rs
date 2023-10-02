@@ -7,6 +7,8 @@ pub enum ParserError {
     UnexpectedToken(String, Span),
     #[error("Unexpected EOF: {0}")]
     UnexpectedEOF(String, Span),
+    #[error("Lexing error: {0}")]
+    LexingError(LexerError)
     // #[error("Ambiguous Expression: {0}")]
     // AmbiguousExpression(String, Span)
 }
@@ -17,4 +19,10 @@ pub enum LexerError {
     SyntaxError(String, Span),
     #[error("Unknown Token: {0}")]
     UnknownToken(char, Span)
+}
+
+impl From<LexerError> for ParserError {
+    fn from(error: LexerError) -> Self {
+        ParserError::LexingError(error)
+    }
 }

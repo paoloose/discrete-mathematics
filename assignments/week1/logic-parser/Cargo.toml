@@ -1,6 +1,6 @@
 [package]
 name = "logic-parser"
-version = "1.1.0"
+version = "1.1.1"
 description = "A simple lexer & parser for logical expressions that supports output as AST, JSON and SVG"
 edition = "2021"
 homepage = "https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week1/logic-parser"
