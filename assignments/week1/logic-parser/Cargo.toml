@@ -1,7 +1,13 @@
 [package]
 name = "logic-parser"
 version = "0.1.0"
+description = "A simple parser for logical expressions that supports output as AST, JSON and SVG"
 edition = "2021"
+homepage = "https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week1/logic-parser"
+repository = "https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week1/logic-parser"
+readme = "README.md"
+keywords = ["parser", "ast-parser", "logic"]
+license = "MIT OR GPL-2.0-or-later"
 
 [lib]
 name = "logic_parser"
