@@ -297,4 +297,18 @@ mod test {
             _ => unreachable!()
         }
     }
+
+    #[test]
+    fn parsing_custom_expressions() {
+        let query = "(tag:pink || tag:anime) && (mime:image/* || mime:video/*)";
+        let mut lexer = Lexer::with_alphabets(
+            |c| c.is_alphanumeric() || c == '_' || c == ':' || c == '*' || c == '/',
+            |c| c.is_alphabetic(),
+        );
+
+        let tokens = lexer.tokenize(query).unwrap();
+
+        let mut parser = Parser::new(&tokens);
+        parser.parse().unwrap();
+    }
 }

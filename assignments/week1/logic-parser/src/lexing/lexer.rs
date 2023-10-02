@@ -15,6 +15,18 @@ pub const DEFAULT_ALPHABET: fn(char) -> bool = |c| { char::is_alphanumeric(c) ||
 pub const DEFAULT_START_ALPHABET: fn(char) -> bool = |c| { char::is_alphabetic(c) || c == '_' };
 
 impl<'a> Lexer<'a> {
+    /// Creates a new Lexer with the default alphabet.
+    ///
+    /// This is conceptually equivalent of doing
+    ///
+    /// ```
+    /// use logic_parser::lexing::Lexer;
+    ///
+    /// let mut lexer = Lexer::with_alphabets(
+    ///     |c| c.is_alphanumeric() || c == '_',
+    ///     |c| c.is_alphabetic() || c == '_'
+    /// );
+    /// ```
     pub fn new() -> Self {
         Lexer {
             is_in_alphabet: DEFAULT_ALPHABET,
@@ -24,13 +36,54 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn with_alphabet(alphabet: fn(char) -> bool, start_chars_alphabet: fn(char) -> bool) -> Self {
+    /// This allows you to define a custom alphabet for the lexer.
+    ///
+    /// ```
+    /// use logic_parser::lexing::Lexer;
+    /// use logic_parser::parsing::{Parser, ASTNode};
+    ///
+    /// let query = "(tag:pink || tag:anime) && (mime:image/* || mime:video/*)";
+    /// let mut lexer = Lexer::with_alphabets(
+    ///     |c| c.is_alphanumeric() || c == '_' || c == ':' || c == '*' || c == '/',
+    ///     |c| c.is_alphabetic(),
+    /// );
+    ///
+    /// let tokens = lexer.tokenize(query).unwrap();
+    ///
+    /// let mut parser = Parser::new(&tokens);
+    /// parser.parse().unwrap();
+    /// ```
+    ///
+    /// # WARNING
+    ///
+    /// Be aware of the following:
+    ///
+    /// - Creating an alphabet such that the `start_chars_alphabet` contains `alphabet` plus
+    ///   some other characters is **undefined behaviour**. It will probably loop forever.
+    ///
+    pub fn with_alphabets(alphabet: fn(char) -> bool, start_chars_alphabet: fn(char) -> bool) -> Self {
         Lexer {
             is_in_alphabet: alphabet,
             is_in_start_chars_alphabet: start_chars_alphabet,
             src: "",
             pos: 0
         }
+    }
+
+    /// Creates a lexer that uses the same alphabet for the start characters and the rest.
+    ///
+    /// Equivalent to doing
+    ///
+    /// ```
+    /// use logic_parser::lexing::Lexer;
+    ///
+    /// let custom_alphabet = |c: char| c.is_alphanumeric() || c == '_';
+    ///
+    /// let mut lexer = Lexer::with_alphabets(custom_alphabet, custom_alphabet);
+    /// lexer.tokenize("_puppies_").unwrap();
+    /// ```
+    pub fn with_alphabet(alphabet: fn(char) -> bool) -> Self {
+        Self::with_alphabets(alphabet, alphabet)
     }
 
     pub fn tokenize(&mut self, src: &'a str) -> Result<Vec<Token>> {
@@ -126,10 +179,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn skip_whitespaces(&mut self) -> usize {
-        self.take_while(|c| {
-            let result = c == '\t' || c == ' ' || c == '\r';
-            result
-        })
+        self.take_while(|c| c == '\t' || c == ' ' || c == '\r')
     }
 
     fn take_while<F>(&mut self, pred: F) -> usize
@@ -144,6 +194,12 @@ impl<'a> Lexer<'a> {
         }
 
         self.pos - from
+    }
+}
+
+impl<'a> Default for Lexer<'a> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -199,7 +255,7 @@ mod tests {
 
     #[test]
     fn error_is_returned_when_alphabet_doesnt_match() {
-        let mut lexer = Lexer::with_alphabet(
+        let mut lexer = Lexer::with_alphabets(
             |c| ['a', 'b', 'c', '1', '2', '3'].contains(&c),
             |c| ['a', 'b', 'c'].contains(&c)
         );
