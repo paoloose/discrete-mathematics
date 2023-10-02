@@ -5,17 +5,38 @@ use super::token::{TokenKind, Token};
 pub type Result<T> = std::result::Result<T, LexerError>;
 
 pub struct Lexer<'a> {
+    is_in_alphabet: fn(char) -> bool,
+    is_in_start_chars_alphabet: fn(char) -> bool,
     src: &'a str,
     pos: usize
 }
 
+pub const DEFAULT_ALPHABET: fn(char) -> bool = |c| { char::is_alphanumeric(c) || c == '_' };
+pub const DEFAULT_START_ALPHABET: fn(char) -> bool = |c| { char::is_alphabetic(c) || c == '_' };
+
 impl<'a> Lexer<'a> {
-    pub fn new(expr: &'a str) -> Lexer {
-        Lexer { src: expr.clone(), pos: 0 }
+    pub fn new() -> Self {
+        Lexer {
+            is_in_alphabet: DEFAULT_ALPHABET,
+            is_in_start_chars_alphabet: DEFAULT_START_ALPHABET,
+            src: "",
+            pos: 0
+        }
     }
 
-    pub fn tokenize(mut self) -> Result<Vec<Token>> {
+    pub fn with_alphabet(alphabet: fn(char) -> bool, start_chars_alphabet: fn(char) -> bool) -> Self {
+        Lexer {
+            is_in_alphabet: alphabet,
+            is_in_start_chars_alphabet: start_chars_alphabet,
+            src: "",
+            pos: 0
+        }
+    }
+
+    pub fn tokenize(&mut self, src: &'a str) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
+        self.src = src;
+        self.pos = 0;
 
         while let Some(token) = self.next_token()? {
             tokens.push(token);
@@ -48,12 +69,12 @@ impl<'a> Lexer<'a> {
             '<' => {
                 match_any_or_syntax_error!(self, ["<->", "<=>"], TokenKind::IfAndOnlyIf)
             },
-            c if c.is_alphabetic() || c == '_' => {
+            c if (self.is_in_start_chars_alphabet)(c) => {
                 self.next_word()
             },
             _ => {
                 return Err(
-                    LexerError::UnknownToken(c.into(), (start, start+1).into())
+                    LexerError::UnknownToken(c, (start, start+1).into())
                 )
             }
         };
@@ -94,7 +115,7 @@ impl<'a> Lexer<'a> {
     fn next_word(&mut self) -> TokenKind {
         let start = self.pos;
         // We add one because we already consumed the first character
-        let token_len = self.take_while(|c, _| c.is_alphanumeric() || c == '_');
+        let token_len = self.take_while(self.is_in_alphabet);
         let p = &self.src[start..start + token_len];
         if p == "true" || p == "false" {
             TokenKind::Literal(p == "true")
@@ -105,15 +126,18 @@ impl<'a> Lexer<'a> {
     }
 
     fn skip_whitespaces(&mut self) -> usize {
-        self.take_while(|c, _| c == '\t' || c == ' ' || c == '\r')
+        self.take_while(|c| {
+            let result = c == '\t' || c == ' ' || c == '\r';
+            result
+        })
     }
 
     fn take_while<F>(&mut self, pred: F) -> usize
-    where F: Fn(char, usize) -> bool {
+    where F: Fn(char) -> bool {
         let from = self.pos;
 
-        for (i, c) in self.src[self.pos..].chars().enumerate() {
-            if pred(c, i).not() {
+        for c in self.src[self.pos..].chars() {
+            if pred(c).not() {
                 break;
             }
             self.pos += c.len_utf8();
@@ -129,15 +153,16 @@ mod tests {
 
     #[test]
     fn no_whitespaces_should_return_zero() {
-        let expr = "testing => this";
-        let n = Lexer::skip_whitespaces(&mut Lexer::new(expr));
+        let mut lexer = Lexer::new();
+        lexer.src = "testing => this";
+        let n = Lexer::skip_whitespaces(&mut lexer);
         assert_eq!(n, 0);
     }
 
     #[test]
     fn literal_booleans_work() {
-        let lexer = Lexer::new("false & true");
-        let tokens = lexer.tokenize().unwrap();
+        let mut lexer = Lexer::new();
+        let tokens = lexer.tokenize("false & true").unwrap();
         assert_eq!(
             tokens.iter().map(|t| &t.kind).collect::<Vec<&TokenKind>>(),
             vec![
@@ -150,33 +175,58 @@ mod tests {
 
     #[test]
     fn take_while_returns_zero_if_no_matches() {
-        let mut lexer = Lexer::new("testing");
-        let n = lexer.take_while(|_, _| false);
+        let mut lexer = Lexer::new();
+        lexer.src = "kittens";
+        let n = lexer.take_while(|_| false);
         assert_eq!(n, 0);
     }
 
     #[test]
     fn take_while_returns_correct_amount() {
-        let mut lexer = Lexer::new("kittens");
-        let n = lexer.take_while(|_, _| true);
+        let mut lexer = Lexer::new();
+        lexer.src = "kittens";
+        let n = lexer.take_while(|_| true);
         assert_eq!(n, 7);
     }
 
     #[test]
     fn skip_whitespaces_works_properly() {
-        let lexer = Lexer::new("\t\r puppies");
-        let tokens = lexer.tokenize().unwrap();
+        let mut lexer = Lexer::new();
+        let tokens = lexer.tokenize("\t\r puppies").unwrap();
         assert_eq!(tokens.len(), 1);
         assert_eq!(tokens[0].kind, TokenKind::Identifier("puppies".into()));
     }
 
     #[test]
+    fn error_is_returned_when_alphabet_doesnt_match() {
+        let mut lexer = Lexer::with_alphabet(
+            |c| ['a', 'b', 'c', '1', '2', '3'].contains(&c),
+            |c| ['a', 'b', 'c'].contains(&c)
+        );
+        match lexer.tokenize("abcf").unwrap_err() {
+            LexerError::UnknownToken(token, span) => {
+                assert_eq!(token, 'f');
+                assert_eq!(span, (3, 4).into());
+            },
+            _ => unreachable!()
+        };
+
+        match lexer.tokenize("123abc").unwrap_err() {
+            LexerError::UnknownToken(token, span) => {
+                assert_eq!(token, '1');
+                assert_eq!(span, (0, 1).into());
+            },
+            _ => unreachable!()
+        };
+    }
+
+    #[test]
     #[should_panic]
     fn propositions_cant_start_with_numbers() {
-        let lexer = Lexer::new("pqrs");
-        if !lexer.tokenize().is_ok() { return; }
+        let mut lexer = Lexer::new();
+        if !lexer.tokenize("pqrs").is_ok() { return }
 
-        let lexer = Lexer::new("69p");
-        let _ = lexer.tokenize().unwrap();
+        let mut lexer = Lexer::new();
+        let _ = lexer.tokenize("69p").unwrap();
     }
 }

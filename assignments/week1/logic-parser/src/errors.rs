@@ -16,5 +16,5 @@ pub enum LexerError {
     #[error("Syntax error: {0}")]
     SyntaxError(String, Span),
     #[error("Unknown Token: {0}")]
-    UnknownToken(String, Span)
+    UnknownToken(char, Span)
 }

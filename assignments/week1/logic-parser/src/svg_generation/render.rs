@@ -95,7 +95,7 @@ mod test {
 
     #[test]
     fn svg_has_correct_amount_of_lines() -> Result<(), Box<dyn Error>> {
-        let tokens = crate::lexing::Lexer::new("p").tokenize()?;
+        let tokens = crate::lexing::Lexer::new().tokenize("p")?;
         let ast = crate::parsing::Parser::new(&tokens).parse()?;
 
         let horizontal_separation: f32 = 20_f32;
