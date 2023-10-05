@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 #[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize};
 
@@ -49,6 +51,39 @@ impl ASTNode {
             ASTNode::Implies { .. } => "⇒",
             ASTNode::IfAndOnlyIf { .. } => "⟷",
         }
+    }
+
+    /// Returns a HashSet of unique identifiers in the AST by traversing it.
+    ///
+    /// There is no guarantee of ordering.
+    pub fn get_identifiers(&self) -> HashSet<&str> {
+        let mut variables = HashSet::new();
+        match self {
+            ASTNode::Identifier { name } => {
+                variables.insert(name.as_str());
+            },
+            ASTNode::Literal { .. } => {},
+            ASTNode::Not { operand } => {
+                variables.extend(operand.get_identifiers());
+            },
+            ASTNode::And { left, right } => {
+                variables.extend(left.get_identifiers());
+                variables.extend(right.get_identifiers());
+            },
+            ASTNode::Or { left, right } => {
+                variables.extend(left.get_identifiers());
+                variables.extend(right.get_identifiers());
+            },
+            ASTNode::Implies { left, right } => {
+                variables.extend(left.get_identifiers());
+                variables.extend(right.get_identifiers());
+            },
+            ASTNode::IfAndOnlyIf { left, right } => {
+                variables.extend(left.get_identifiers());
+                variables.extend(right.get_identifiers());
+            }
+        }
+        variables
     }
 
     #[cfg(not(feature = "serde"))]
