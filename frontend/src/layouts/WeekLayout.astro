@@ -1,0 +1,64 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Header from '@components/Header.astro';
+import Link from '@components/Link.astro';
+import AvailableAtGithub from '@components/AvailableAtGithub.astro';
+
+type Props = {
+  main_id: string,
+  h1_title: string,
+  week: number
+}
+
+const { main_id, week, h1_title } = Astro.props;
+
+const GITHUB_URL = `https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week${week}`;
+
+if (import.meta.env.PROD) {
+  // Runs on `astro build`
+  const response = await fetch(GITHUB_URL);
+  if (response.status !== 200) {
+    console.error(`Error fetching ${GITHUB_URL}: ${response.statusText}`);
+    throw new Error();
+  }
+}
+---
+
+<Layout title=`Assignments: semana ${week}`>
+  <Header />
+  <main>
+    <Link href="/">Go back</Link>
+    <section>
+      <h1>{h1_title}</h1>
+      <AvailableAtGithub href={GITHUB_URL}>
+        @paoloose/discrete-mathematics/week{week}
+      </AvailableAtGithub>
+    </section>
+    <section id={main_id}>
+      <slot />
+    </section>
+  </main>
+</Layout>
+
+<style lang="scss">
+  h1 {
+    margin-top: 10px;
+    margin-bottom: 0.5rem;
+  }
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  main {
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    max-width: 100ch;
+  }
+
+  section {
+  }
+
+  svg {
+    display: none;
+  }
+</style>

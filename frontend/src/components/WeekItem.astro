@@ -8,12 +8,10 @@ const { page } = Astro.props;
 const { metadata } = page;
 ---
 
-<li>
-  <Link href={page.url}>
-    <h4>{metadata.title}</h4>
-  </Link>
-  <p>{metadata.description}</p>
-</li>
+<Link href={page.url}>
+  <h4>{metadata.title}</h4>
+</Link>
+<p>{metadata.description}</p>
 
 <style>
   a {

@@ -6,10 +6,12 @@ export type WeekMetadata = {
   img: string
 }
 
+export type WeekPageInstance = AstroInstance & {
+  metadata: WeekMetadata
+}
+
 export type WeekPage = {
-  page: AstroInstance & {
-    metadata: WeekMetadata
-  }
+  page: WeekPageInstance
 }
 
 export type ASTBinaryOperator = {

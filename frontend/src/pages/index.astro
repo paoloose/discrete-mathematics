@@ -7,6 +7,7 @@ import WeekItem from '@components/WeekItem.astro';
 import Header from '@components/Header.astro';
 import clouds from '@assets/clouds.webp';
 import githubLogo from '@assets/github_light.svg';
+import type { WeekPageInstance } from '@types';
 
 const weeks = await fs.readdir('../assignments');
 ---
@@ -33,12 +34,18 @@ const weeks = await fs.readdir('../assignments');
     </section>
     <section id="assignments">
       <h2>Assignments</h2>
-      {
-        weeks.map(async (week, i) => {
-          const page = await import(`./assignments/${week}.astro`);
-          return <WeekItem page={page} />;
-        })
-      }
+      <ul id="week-list">
+        {
+          weeks.map(async (week) => {
+            const page = await import(`./assignments/${week}.astro`) as WeekPageInstance;
+            return (
+              <li>
+                <WeekItem page={page} />
+              </li>
+            );
+          })
+        }
+      </ul>
     </section>
   </main>
 </Layout>
@@ -146,6 +153,19 @@ const weeks = await fs.readdir('../assignments');
 
   #assignments {
     border-top: 1px solid var(--border-color);
-  }
+    h2 {
+      margin-bottom: 22px;
+    }
 
+    #week-list {
+      margin-block: 0;
+      margin-inline: 0;
+      margin-inline-start: 0;
+      padding-inline-start: 0;
+    }
+    #week-list li {
+      list-style-type: none;
+      margin-bottom: 25px;
+    }
+  }
 </style>

@@ -1,61 +1,25 @@
 ---
 import LogicParser from '@components/LogicParser/LogicParser';
-import Header from '@components/Header.astro';
-import Layout from '@layouts/Layout.astro';
 import type { WeekMetadata } from '@types';
-import Link from '@components/Link.astro';
-import AvailableAtGithub from '@components/AvailableAtGithub.astro';
+import WeekLayout from '@layouts/WeekLayout.astro';
 
 export const metadata: WeekMetadata = {
-  title: 'Boolean Algebra and Logical expressions',
-  description: 'This week I built a logic parser using the concepts of lexing, parsing and syntax trees.',
+  title: 'Project 1: Boolean Algebra and Logical expressions',
+  description: 'This week we built a logic expressions parser using the concepts of lexing, parsing and syntax trees.',
   img: ''
 }
 ---
 
-<Layout title="Assignments: semana 1">
-  <Header />
-  <main>
-    <Link href="/">Go back</Link>
-    <section>
-      <h1>Evaluador y visualizador de proposiciones lógicas</h1>
-      <AvailableAtGithub href="https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week1">
-        @paoloose/discrete-mathematics/week1
-      </AvailableAtGithub>
-    </section>
-    <p>
-        Escribe una proposición lógica para ser evaluada.
-    </p>
-    <section id="logic-parser">
-      <LogicParser client:load />
-    </section>
-  </main>
-</Layout>
+<WeekLayout
+  h1_title='Evaluador y visualizador de proposiciones lógicas'
+  main_id='#logic-parser'
+  week={1}
+>
+  <p>Escribe una proposición lógica para ser evaluada.</p>
+  <LogicParser client:load />
+</WeekLayout>
 
-<style lang="scss">
-  h1 {
-    margin-top: 10px;
-    margin-bottom: 0.5rem;
-  }
-  html {
-    scrollbar-gutter: stable;
-  }
-
-  main {
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
-    max-width: 100ch;
-  }
-
-  section {
-  }
-
-  svg {
-    display: none;
-  }
-</style>
-
-<style is:inline lang="scss">
+<style is:inline>
   #logic-parser #input-wrapper {
     display: flex;
     flex-direction: column;
@@ -201,5 +165,4 @@ export const metadata: WeekMetadata = {
     border: 1px solid black;
     padding: 5px;
   }
-
 </style>
