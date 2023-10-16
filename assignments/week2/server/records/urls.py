@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import RecordsListCreate
+from .views import RecordRetrieve
 
 urlpatterns = [
-    path('', RecordsListCreate.as_view(), name='articles-list-create')
+    # Retrievers a record from Vennbase with its corresponding content-type
+    path('<str:record_id>', RecordRetrieve.as_view(), name='record-retrieve')
 ]
