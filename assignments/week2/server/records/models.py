@@ -7,7 +7,7 @@ class RecordTag(models.Model):
 class Record(models.Model):
     id = models.AutoField(primary_key=True)
     # Vennbase record id
-    record_id = models.UUIDField()
+    vennbase_id = models.UUIDField()
     name = models.CharField(max_length=100)
     # array of tags
-    tags = models.ManyToManyField(RecordTag)
+    tags = models.ManyToManyField(RecordTag, related_name='records')
