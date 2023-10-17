@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-import os
-import django
+import load as _
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vennbase.settings')
-django.setup()
-
-from records.views import RecordSerializer, RecordTagSerializer, Record
+from records.views import RecordSerializer, Record
 from records.models import RecordTag
 
 # RecordTag.objects.create(name="anime")
