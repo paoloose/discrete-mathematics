@@ -1,11 +1,17 @@
 from rest_framework import serializers
 
-from .models import Record, RecordTag
+from records.models import Record, RecordTag
+from venndriver.connection import save_record_to_vennbase
 
 class RecordTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecordTag
         fields = ['id', 'name']
+
+class RecordModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Record
+        fields = ['id', 'vennbase_id', 'name', 'mimetype', 'tags']
 
 # <https://www.django-rest-framework.org/api-guide/serializers/#serializers>
 class RecordSerializer(serializers.Serializer):
@@ -21,17 +27,14 @@ class RecordSerializer(serializers.Serializer):
     the model validation from an developer perspective.
     """
     id = serializers.IntegerField(read_only=True)
-    vennbase_id = serializers.UUIDField()
+    mimetype = serializers.CharField(max_length=255)
+    # This will be sent to Vennbase and the returned id will be saved to the Record model
+    base64_record = serializers.CharField(write_only=True)
     name = serializers.CharField(max_length=100)
-    # Resializers itself are also a type of Field!!!
+    # Serializers itself are also a type of Field!!!
     # Here is when the concept of Relations comes into play!!!
     # tags are many to many field
     tags = RecordTagSerializer(many=True)
-
-    def validate_name(self, value):
-        if len(value) > 100:
-            raise serializers.ValidationError("name is too long!")
-        return f"{value}!"
 
     def validate_tags(self, tags):
         print("tags: ", tags)
@@ -44,14 +47,21 @@ class RecordSerializer(serializers.Serializer):
         If not defined, it returns a NotImplementedError: `create()` must be
         implemented.
         """
-        new_record = Record(
-            vennbasae_id=validated_data['vennbasae_id'],
-            name=validated_data['name']
+        uuid = save_record_to_vennbase(
+            validated_data['base64_record'],
+            validated_data['mimetype']
         )
-        for tag in validated_data['tags']:
-            new_record.tags.add(tag)
-        new_record.save()
-        return new_record
+        record = Record.objects.create(
+            vennbase_id=uuid,
+            name=validated_data['name'],
+            mimetype=validated_data['mimetype']
+        )
+
+        tags = validated_data.pop('tags')
+        for tag in tags:
+            record.tags.add(tag['id'])
+
+        return record
 
     def update(self, instance: Record, validated_data):
         """

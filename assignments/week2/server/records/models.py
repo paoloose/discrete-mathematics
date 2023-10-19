@@ -9,5 +9,6 @@ class Record(models.Model):
     # Vennbase record id
     vennbase_id = models.UUIDField()
     name = models.CharField(max_length=100)
+    mimetype = models.CharField(max_length=255)
     # array of tags
     tags = models.ManyToManyField(RecordTag, related_name='records')
