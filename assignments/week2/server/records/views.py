@@ -1,16 +1,37 @@
-from rest_framework import status
+from django.http import Http404
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.request import Request
 from rest_framework.viewsets import ViewSet
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
+from rest_framework.request import Request
 from rest_framework import parsers
+from rest_framework import status
+from django.forms import ValidationError
 
-from .models import Record
-from .serializers import RecordModelSerializer, RecordSerializer
+from records.models import Record
+from records.serializers import RecordModelSerializer, RecordSerializer
+from venndriver.protocol import get_record_by_id
 
-class RecordRetrieve(RetrieveAPIView):
-    queryset = Record.objects.all()
-    lookup_field = 'vennbase_id'
+@api_view(['GET'])
+def retrieve_record(_: Request, vennbase_id: str):
+    try:
+        record = Record.objects.get(vennbase_id=vennbase_id)
+    except Record.DoesNotExist:
+        raise Http404
+    except ValidationError:
+        return Response({
+            'error': f'Vennbase id {vennbase_id} is not a valid uuid'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    data, mimetype = get_record_by_id(record.vennbase_id)
+    print(len(data), mimetype)
+    response = Response(
+        headers={
+            'Content-Disposition': f'attachment; filename={record.name}',
+            'Content-Type': mimetype
+        }
+    )
+    response.content = data
+    return response
 
 class RecordViewSet(ViewSet):
 

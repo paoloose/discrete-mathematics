@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from records.models import Record, RecordTag
-from venndriver.connection import save_record_to_vennbase
+from venndriver.protocol import save_record_to_vennbase
 
 class RecordTagSerializer(serializers.ModelSerializer):
     class Meta:

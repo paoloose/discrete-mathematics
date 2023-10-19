@@ -14,12 +14,12 @@ data = {
     "tags": []
 }
 
-serializer = RecordSerializer(data=data)
+serializer = RecordSerializer(data=data) # type: ignore
 serializer.is_valid(raise_exception=True)
 serializer.save()
 
 # push record tags to the newly created record
-record: Record = serializer.instance
+record: Record = serializer.instance # type: ignore
 record.tags.add(*tags)
 record.tags.add(1)
 record.tags.add(1)

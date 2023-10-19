@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from time import sleep
 import load as _
 
 from pathlib import Path
