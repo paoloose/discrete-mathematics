@@ -19,7 +19,7 @@ export const metadata: WeekMetadata = {
   <LogicParser client:load />
 </WeekLayout>
 
-<style is:inline>
+<style is:global lang="scss">
   #logic-parser #input-wrapper {
     display: flex;
     flex-direction: column;
@@ -36,27 +36,27 @@ export const metadata: WeekMetadata = {
     font-size: 1.5rem;
     border: 1px solid black;
     overflow-x: auto;
-  }
 
-  #logic-parser #rendered-input div {
-    margin: 0 auto;
-  }
+    div {
+      margin: 0 auto;
+    }
 
-  #logic-parser #rendered-input #error-msg {
-    font-size: 1rem;
-    margin-top: 10px;
-  }
+    #error-msg {
+      font-size: 1rem;
+      margin-top: 10px;
+    }
 
-  #logic-parser #rendered-input .token.space {
-    font-size: 10px;
-  }
+    .token.space {
+      font-size: 10px;
+    }
 
-  #logic-parser #rendered-input .token.error {
-    color: rgb(0, 0, 0);
-    text-decoration: underline;
-    text-decoration-color: red;
-    background-color: rgba(255, 0, 0, 0.2);
-    text-decoration-thickness: 2px;
+    .token.error {
+      color: rgb(0, 0, 0);
+      text-decoration: underline;
+      text-decoration-color: red;
+      background-color: rgba(255, 0, 0, 0.2);
+      text-decoration-thickness: 2px;
+    }
   }
 
   #logic-parser input {
@@ -79,25 +79,24 @@ export const metadata: WeekMetadata = {
 
   #logic-parser #svg-params {
     display: flex;
-  }
+    .svg-param {
+      display: flex;
+      align-items: center;
+      margin-right: 8px;
 
-  #logic-parser .svg-param {
-    display: flex;
-    align-items: center;
-    margin-right: 8px;
-  }
-
-  #logic-parser .svg-param input {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    scale: 0.9;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+      input {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 4px;
+        scale: 0.9;
+        border-radius: 5px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+      }
+    }
   }
 
   #logic-parser .svg-param input[type="range"]::-webkit-slider-runnable-track {
@@ -107,21 +106,20 @@ export const metadata: WeekMetadata = {
     background: #e3d9e4;
   }
 
-
   #logic-parser #clickable-tokens {
     background-color: #716a8f;
-  }
 
-  #logic-parser #clickable-tokens button {
-    background-color: transparent;
-    outline: 1px solid black;
-    margin: 5px;
-    padding: 4px 10px;
-    color: white;
-    background-color: #977ca5;
-    font-size: 1rem;
-    font-family: monospace;
-    border: none;
+    button {
+      background-color: transparent;
+      outline: 1px solid black;
+      margin: 5px;
+      padding: 4px 10px;
+      color: white;
+      background-color: #977ca5;
+      font-size: 1rem;
+      font-family: monospace;
+      border: none;
+    }
   }
 
   #logic-parser #tabs-buttons {
@@ -130,21 +128,20 @@ export const metadata: WeekMetadata = {
     justify-content: stretch;
     margin-bottom: 10px;
     margin-top: 15px;
-  }
 
-  #logic-parser #tabs-buttons button {
-    background-color: transparent;
-    outline: 1px solid black;
-    color: white;
-    background-color: #977ca5;
-    font-size: 1rem;
-    font-family: monospace;
-    border: none;
-    flex-grow: 1;
-  }
-
-  #logic-parser #tabs-buttons button.active {
-    background-color: #716a8f;
+    button {
+      background-color: transparent;
+      outline: 1px solid black;
+      color: white;
+      background-color: #977ca5;
+      font-size: 1rem;
+      font-family: monospace;
+      border: none;
+      flex-grow: 1;
+    }
+    button.active {
+      background-color: #716a8f;
+    }
   }
 
   table {
