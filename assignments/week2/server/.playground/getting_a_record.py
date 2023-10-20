@@ -12,7 +12,7 @@ PORT = int(getenv('VENNBASE_PORT', 1834))
 def get_record_by_id(id: UUID, save_path: Path):
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.connect((ADDR, PORT))
-    conn.send(f'get {id}\n'.encode())
+    conn.sendall(f'get {id}\n'.encode())
     conn.settimeout(3)
 
     header = b''

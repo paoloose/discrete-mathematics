@@ -14,25 +14,29 @@ def save_record_to_vennbase(base64_record: str, mimetype: str) -> UUID:
 
     # decode base64 to binary in order to save it as a file
     data = base64.b64decode(base64_record)
+    print(f'parsed with len={len(data)}')
 
     # this file is gb long, so is better to send it as chunks
-    conn.send(f'save {mimetype}\n'.encode())
-    conn.send(data)
+    print(f"saving as {mimetype}")
+    conn.sendall(f'save {mimetype}\n'.encode())
+    conn.sendall(data)
     # send EOF but still read the response
     conn.shutdown(socket.SHUT_WR)
     try:
         uuid = conn.recv(1024).decode()
     except socket.timeout:
         raise ConnectionError('Connection timed out')
-    print("received uuid: ", uuid)
     conn.close()
     return UUID(uuid)
 
-def get_record_by_id(id: UUID) -> tuple[bytes, str]:
+def get_record_by_id(id: UUID, resize: str | None = None) -> tuple[bytes, str]:
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.connect((ADDR, PORT))
-    conn.send(f'get {id}\n'.encode())
-    conn.settimeout(3)
+    if resize:
+        conn.sendall(f'get {resize} {id}\n'.encode())
+    else:
+        conn.sendall(f'get {id}\n'.encode())
+    conn.settimeout(30)
 
     # If the uuid exists, a header is returned in the following format:
     #  <mimetype> <length>\n

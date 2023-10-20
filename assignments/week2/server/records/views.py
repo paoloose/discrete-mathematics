@@ -12,7 +12,7 @@ from records.serializers import RecordModelSerializer, RecordSerializer
 from venndriver.protocol import get_record_by_id
 
 @api_view(['GET'])
-def retrieve_record(_: Request, vennbase_id: str):
+def retrieve_record(req: Request, vennbase_id: str):
     try:
         record = Record.objects.get(vennbase_id=vennbase_id)
     except Record.DoesNotExist:
@@ -22,12 +22,16 @@ def retrieve_record(_: Request, vennbase_id: str):
             'error': f'Vennbase id {vennbase_id} is not a valid uuid'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    data, mimetype = get_record_by_id(record.vennbase_id)
+    data, mimetype = get_record_by_id(
+        record.vennbase_id,
+        resize=req.GET.get('resize', None)
+    )
     print(len(data), mimetype)
     response = Response(
         headers={
-            'Content-Disposition': f'attachment; filename={record.name}',
-            'Content-Type': mimetype
+            # 'Content-Disposition': f'attachment; filen ame={record.name}',
+            'Content-Type': mimetype,
+            'Cache-Control': 'max-age=31536000',
         }
     )
     response.content = data

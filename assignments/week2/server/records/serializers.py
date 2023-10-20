@@ -37,7 +37,6 @@ class RecordSerializer(serializers.Serializer):
     tags = RecordTagSerializer(many=True)
 
     def validate_tags(self, tags):
-        print("tags: ", tags)
         if len(tags) > 100:
             raise serializers.ValidationError("tags is too long!")
         return tags
