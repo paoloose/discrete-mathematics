@@ -98,3 +98,13 @@ export type TokenKind =
   TokenCloseParen;
 
 export type Token = TokenKind & { span: [start: number, end: number] };
+
+/* Project 2 */
+
+export type RecordInformation = {
+  id: number,
+  mimetype: string,
+  name: string,
+  tags: [],
+  vennbase_id: string
+}

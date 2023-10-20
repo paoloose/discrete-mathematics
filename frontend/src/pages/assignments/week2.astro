@@ -1,5 +1,5 @@
 ---
-import LogicParser from '@components/LogicParser/LogicParser';
+import Vennbase from '@components/Vennbase/Vennbase';
 import type { WeekMetadata } from '@types';
 import WeekLayout from '@layouts/WeekLayout.astro';
 
@@ -16,4 +16,85 @@ export const metadata: WeekMetadata = {
   week={2}
 >
   <p>Non implemented yet</p>
+  <Vennbase client:load />
 </WeekLayout>
+
+<style is:global lang="scss">
+  #vennbase {
+    table#records-list {
+      scrollbar-gutter: stable;
+      border-collapse: collapse;
+      max-height: 30rem;
+      overflow-y: auto;
+      display: block;
+      border: 1px solid rgb(208, 208, 208);
+
+      // this is a thin, modern scrollbar
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #c5c5c5;
+      }
+    }
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+  }
+
+  tr {
+    height: 30px;
+    &:nth-child(even) {
+      background: #f5f5f5;
+    }
+  }
+
+  th {
+    background: #eee;
+    font-weight: bold;
+    padding: 3px;
+  }
+
+  th, td {
+    padding: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  td {
+    &.record-repr {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        max-height: 20px;
+        max-width: 30px;
+      }
+    }
+    &.record-info-mimetype {
+      max-width: 150px;
+    }
+    &.record-info-name {
+      width: 100%;
+    }
+  }
+
+  th {
+    text-align: left;
+    &.record-repr {
+      min-width: 40px;
+    }
+    &.record-info-mimetype {
+      min-width: 150px;
+    }
+    &.record-info-name {
+      width: 100%;
+    }
+  }
+</style>
