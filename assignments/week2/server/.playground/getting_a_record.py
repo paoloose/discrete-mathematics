@@ -4,6 +4,7 @@ import load as _
 from pathlib import Path
 from uuid import UUID
 from os import getenv
+from venndriver.protocol import query_vennbase
 import socket
 
 ADDR = getenv('VENNBASE_ADDR', '127.0.0.1')
@@ -39,7 +40,7 @@ def get_record_by_id(id: UUID, save_path: Path):
     conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 
-get_record_by_id(
-    UUID('bad4130b-e744-914f-ac14-33dbad500a59'),
-    Path('./test2.png')
-)
+# get_record_by_id(
+#     UUID('bad4130b-e744-914f-ac14-33dbad500a59'),
+#     Path('./test2.png')
+# )

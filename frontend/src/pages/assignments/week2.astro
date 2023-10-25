@@ -16,7 +16,7 @@ export const metadata: WeekMetadata = {
   week={2}
 >
   <p>Non implemented yet</p>
-  <Vennbase client:load />
+  <Vennbase client:only="react" />
 </WeekLayout>
 
 <style is:global lang="scss">
@@ -24,7 +24,8 @@ export const metadata: WeekMetadata = {
     table#records-list {
       scrollbar-gutter: stable;
       border-collapse: collapse;
-      max-height: 30rem;
+      max-height: 25rem;
+      height: 25rem;
       overflow-y: auto;
       display: block;
       border: 1px solid rgb(208, 208, 208);
@@ -39,6 +40,20 @@ export const metadata: WeekMetadata = {
       &::-webkit-scrollbar-thumb {
         background: #c5c5c5;
       }
+    }
+
+    #query-form {
+      display: flex;
+      margin-top: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #query-result-graph {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 

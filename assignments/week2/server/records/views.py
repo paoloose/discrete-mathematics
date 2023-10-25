@@ -9,7 +9,7 @@ from django.forms import ValidationError
 
 from records.models import Record
 from records.serializers import RecordModelSerializer, RecordSerializer
-from venndriver.protocol import get_record_by_id
+from venndriver.protocol import get_record_by_id, query_vennbase
 
 @api_view(['GET'])
 def retrieve_record(req: Request, vennbase_id: str):
@@ -39,8 +39,16 @@ def retrieve_record(req: Request, vennbase_id: str):
 
 class RecordViewSet(ViewSet):
 
-    def list(self, _: Request):
-        queryset = Record.objects.all()
+    def list(self, request: Request):
+        query = request.GET.get('query', '')
+        if query:
+            try:
+                uuids = query_vennbase(query)
+            except ValueError:
+                return Response([], status=status.HTTP_400_BAD_REQUEST)
+            queryset = Record.objects.filter(vennbase_id__in=uuids)
+        else:
+            queryset = Record.objects.all()
         serializer_class = RecordModelSerializer(queryset, many=True)
         return Response(serializer_class.data)
 

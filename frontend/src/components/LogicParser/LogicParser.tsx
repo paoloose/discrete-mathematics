@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'react';
 import SVGRender from '@components/SVGRender';
-import type { TargetedEvent } from 'preact/compat';
 import type { ASTNode, LogicParsingResult } from '@types';
 import { analizeTree } from './analize';
 import { generateTable } from './generateTable';
@@ -19,7 +18,7 @@ function LogicParser() {
   const tabsViews = useRef(['Modo JSON', 'Modo árbol', 'Modo tabla']);
   const [currentView, setCurrentView] = useState(1);
 
-  const handleInput = async (_?: TargetedEvent<HTMLInputElement, Event>) => {
+  const handleInput = async () => {
     if (!inputRef.current) return;
     const expression = input;
     const { parse_expression } = await import('logic-parsers');
@@ -62,7 +61,7 @@ function LogicParser() {
           <div id="error-msg">{errorMsg}</div>
         </div>
         <input
-          autocorrect="off"
+          autoCorrect="off"
           spellCheck={false}
           placeholder="write => here"
           type="text"
