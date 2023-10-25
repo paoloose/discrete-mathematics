@@ -70,3 +70,18 @@ def get_record_by_id(id: UUID, resize: str | None = None) -> tuple[bytes, str]:
     conn.close()
 
     return (data, mimetype)
+
+def query_vennbase(query: str, skip: int, limit: int):
+    conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn.connect((ADDR, PORT))
+    conn.settimeout(3)
+
+    conn.sendall(f'query {query} skip={skip} limit={limit}\n'.encode())
+    # send EOF but still read the response
+    conn.shutdown(socket.SHUT_WR)
+    try:
+        uuid = conn.recv(1024).decode()
+    except socket.timeout:
+        raise ConnectionError('Connection timed out')
+    conn.close()
+    return UUID(uuid)
