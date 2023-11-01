@@ -1,16 +1,25 @@
 import UpSetJS, { extractCombinations } from '@upsetjs/react';
+import type { QueriedRecordResult } from './QuerySection';
 // import the upsetjs react component
 
-function QueryResultGraph() {
+function QueryResultGraph({ queryResult }: { queryResult: QueriedRecordResult[] }) {
 
-  const elems = [
-    { name: 'A', sets: ['S1', 'S2'] },
-    { name: 'B', sets: ['S1'] },
-    { name: 'C', sets: ['S2'] },
-    { name: 'D', sets: ['S1', 'S3'] },
-  ];
+  // const elems = [
+  //   { name: 'A', sets: ['S1', 'S2'] },
+  //   { name: 'B', sets: ['S1'] },
+  //   { name: 'C', sets: ['S2'] },
+  //   { name: 'D', sets: ['S1', 'S3'] },
+  // ];
+  const elements = queryResult.map((result) => {
+    return {
+      name: result.uuid,
+      sets: result.tags.concat(result.mimetype),
+    };
+  });
 
-  const { sets, combinations } = extractCombinations(elems);
+  console.log({elements})
+
+  const { sets, combinations } = extractCombinations(elements);
   const UpSet = UpSetJS as any;
 
   return (

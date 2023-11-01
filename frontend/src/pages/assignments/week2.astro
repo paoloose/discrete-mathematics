@@ -21,6 +21,10 @@ export const metadata: WeekMetadata = {
 
 <style is:global lang="scss">
   #vennbase {
+    h1 {
+      margin-bottom: 2px;
+    }
+
     table#records-list {
       scrollbar-gutter: stable;
       border-collapse: collapse;
@@ -54,6 +58,37 @@ export const metadata: WeekMetadata = {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .vennbase-status {
+      color: #e2e2e2;
+      background-color: #0b0b0b;
+      font-size: 9px;
+      display: inline-block;
+      margin-bottom: 10px;
+      border-radius: 5px;
+
+      .status-badge {
+        display: inline-block;
+        padding: 3px 4px 3px 6px;
+      }
+      .status-text {
+        display: inline-block;
+        padding: 3px 6px 3px 4px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        margin: 0;
+
+        &.connecting {
+          background-color: #5a5a5a;
+        }
+        &.connected {
+          background-color: #528d54;
+        }
+        &.down {
+          background-color: #c57772;
+        }
+      }
     }
   }
 
