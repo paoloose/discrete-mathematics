@@ -3,9 +3,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.request import Request
-from rest_framework import parsers
 from rest_framework import status
 from django.forms import ValidationError
+import jsons
 
 from records.models import Record
 from records.serializers import RecordModelSerializer, RecordSerializer
@@ -38,28 +38,31 @@ def retrieve_record(req: Request, vennbase_id: str):
     return response
 
 class RecordViewSet(ViewSet):
-
     def list(self, request: Request):
         query = request.GET.get('query', '')
         if query:
             try:
-                uuids = query_vennbase(query)
+                records = query_vennbase(query)
             except ValueError:
                 return Response([], status=status.HTTP_400_BAD_REQUEST)
-            queryset = Record.objects.filter(vennbase_id__in=uuids)
-        else:
-            queryset = Record.objects.all()
+            # queryset = Record.objects.filter(vennbase_id__in=uuids)
+            return Response(
+                jsons.dump(records),
+                status=status.HTTP_200_OK
+            )
+        queryset = Record.objects.all()
         serializer_class = RecordModelSerializer(queryset, many=True)
         return Response(serializer_class.data)
 
     def create(self, request: Request):
         serializer = RecordSerializer(data=request.data) # type: ignore
+        # ignore error if an unique field already exists
         if serializer.is_valid():
+            # This also saves the newly created record to vennbase
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer.error_messages, serializer.errors)
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
-
-    parser_classes = [parsers.JSONParser, parsers.MultiPartParser]

@@ -48,7 +48,8 @@ class RecordSerializer(serializers.Serializer):
         """
         uuid = save_record_to_vennbase(
             validated_data['base64_record'],
-            validated_data['mimetype']
+            validated_data['mimetype'],
+            validated_data['tags']
         )
         record = Record.objects.create(
             vennbase_id=uuid,
@@ -56,9 +57,14 @@ class RecordSerializer(serializers.Serializer):
             mimetype=validated_data['mimetype']
         )
 
+        # we've already sent the tags to vennbase, now we need to
+        # sync the tags with the database
         tags = validated_data.pop('tags')
+        # TODO: can this be optimized?
+        # bulk FIND the tags that match with the list of names
         for tag in tags:
-            record.tags.add(tag['id'])
+            tag, _ = RecordTag.objects.get_or_create(name=tag['name'])
+            record.tags.add(tag)
 
         return record
 
