@@ -29,8 +29,10 @@ def save_record_to_vennbase(path: Path, mimetype: str, tags: list[str] = []):
         conn.sendall(b'\n' + r.read())
         # send EOF but still read the response
         conn.shutdown(socket.SHUT_WR)
-        uuid = conn.recv(1024).decode()
-    return uuid
+        status, uuid = conn.recv(1024).decode()
+        if status == 'ERROR':
+            raise Exception('Vennbase error on \'save\'')
+        return uuid
 
 def post_record(path: Path, filename: str, mimetype: str, tags: list[str]):
     with open(path, 'rb') as f:

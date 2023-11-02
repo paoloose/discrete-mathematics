@@ -37,7 +37,7 @@ def save_record_to_vennbase(path: Path, mimetype: str, tags: list[str] = []):
         # send EOF but still read the response
         conn.shutdown(socket.SHUT_WR)
         status, uuid = get_first_line(conn).split(b' ')
-        if status == 'Error':
+        if status == 'ERROR':
             raise Exception('Vennbase error')
         return uuid
 
