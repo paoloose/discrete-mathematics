@@ -36,8 +36,10 @@ def save_record_to_vennbase(path: Path, mimetype: str, tags: list[str] = []):
         conn.sendall(b'\n' + r.read())
         # send EOF but still read the response
         conn.shutdown(socket.SHUT_WR)
-        uuid = conn.recv(1024).decode()
-    return uuid
+        status, uuid = get_first_line(conn).split(b' ')
+        if status == 'Error':
+            raise Exception('Vennbase error')
+        return uuid
 
 def save_record_to_vennbase(base64_record: str, mimetype: str, tags: list[str]) -> UUID:
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
