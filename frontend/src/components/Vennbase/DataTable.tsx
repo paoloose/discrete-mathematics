@@ -1,5 +1,5 @@
-import type { RecordInformation } from "@types";
-import { BACKEND_ADDR } from "./fetching";
+import type { RecordInformation } from '@types';
+import { BACKEND_ADDR } from './fetching';
 
 const VISUALIZABLE_MIMETYPES = [
   'image/jpeg',
@@ -33,6 +33,7 @@ function DataTable({ records }: { records: RecordInformation[] }) {
                 VISUALIZABLE_MIMETYPES.includes(record.mimetype)
                   ? <img
                     src={`${BACKEND_ADDR}/api/records/${record.vennbase_id}?resize=autox30`}
+                    loading="lazy"
                   />
                   : <img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Document_icon_%28the_Noun_Project_27904%29.svg/1024px-Document_icon_%28the_Noun_Project_27904%29.svg.png"

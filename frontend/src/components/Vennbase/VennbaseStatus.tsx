@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { vennfetch } from "./fetching";
+import { useCallback, useEffect, useState } from 'react';
+import { vennfetch } from './fetching';
 
 enum Status {
   CONNECTING,
@@ -9,27 +9,33 @@ enum Status {
 
 const statusMap: Record<Status, { class: string; text: string }> = {
   [Status.CONNECTING]: {
-    class: "connecting",
-    text: "Connecting...",
+    class: 'connecting',
+    text: 'Connecting...',
   },
   [Status.CONNECTED]: {
-    class: "connected",
-    text: "Connected",
+    class: 'connected',
+    text: 'Connected',
   },
   [Status.DOWN]: {
-    class: "down",
-    text: "Down",
+    class: 'down',
+    text: 'Down',
   },
 }
 
 function VennbaseStatus() {
   const [status, setStatus] = useState<Status>(Status.CONNECTING);
 
-  useEffect(() => {
-    vennfetch("/health")
+  const checkInterval = useCallback(() => {
+    vennfetch('/health/')
       .then(res => res.status === 200 ? Status.CONNECTED : Status.DOWN)
       .catch(() => Status.DOWN)
-      .then((s) => setTimeout(() => setStatus(s), 1069))
+      .then((s) => setTimeout(() => setStatus(s), 443))
+  }, []);
+
+  useEffect(() => {
+    let interval = window.setInterval(checkInterval, 5000);
+    checkInterval();
+    return () => clearInterval(interval);
   });
 
   return (
