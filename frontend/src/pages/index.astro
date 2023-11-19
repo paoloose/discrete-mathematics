@@ -1,7 +1,5 @@
 ---
-import fs from 'node:fs/promises';
 import { Image } from 'astro:assets';
-
 import Layout from '@layouts/Layout.astro';
 import WeekItem from '@components/WeekItem.astro';
 import Header from '@components/Header.astro';
@@ -9,7 +7,7 @@ import clouds from '@assets/clouds.webp';
 import githubLogo from '@assets/github_light.svg';
 import type { WeekPageInstance } from '@types';
 
-const weeks = await fs.readdir('../assignments');
+const weeks = await Astro.glob('./assignments/*.astro');
 ---
 
 <Layout title="Discrete Mathematics portfolio">
@@ -37,10 +35,9 @@ const weeks = await fs.readdir('../assignments');
       <ul id="week-list">
         {
           weeks.map(async (week) => {
-            const page = await import(`./assignments/${week}.astro`) as WeekPageInstance;
             return (
               <li>
-                <WeekItem page={page} />
+                <WeekItem page={week as WeekPageInstance} />
               </li>
             );
           })
