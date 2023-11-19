@@ -102,9 +102,13 @@ export type Token = TokenKind & { span: [start: number, end: number] };
 /* Project 2 */
 
 export type RecordInformation = {
-  id: number,
+  id: string, // vennbase uuid
   mimetype: string,
-  name: string,
-  tags: [],
-  vennbase_id: string
+  tags: string[],
+}
+
+export interface QueriedRecordResult {
+  id: string;
+  mimetype: string;
+  tags: string[];
 }

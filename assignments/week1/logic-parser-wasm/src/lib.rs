@@ -22,7 +22,11 @@ pub fn parse_expression(expr: &str) -> String {
     // "p & q" -> [ & [p] [q]]
     // "p & (q => s)" -> [ & [p] [ => [q] [s]]]
     // "(p | q) & (q => s)" -> [ | [p] [q] ]
-    let tokens = match Lexer::new(expr).tokenize() {
+    let mut lexer = Lexer::with_alphabets(
+        |c| c.is_alphanumeric() || c == '_' || c == '-' || c == ':' || c == '*' || c == '/',
+        |c| c.is_alphabetic(),
+    );
+    let tokens = match lexer.tokenize(expr) {
         Ok(t) => t,
         Err(ref e) => {
             match e {
@@ -46,6 +50,16 @@ pub fn parse_expression(expr: &str) -> String {
                 ParserError::UnexpectedToken(_, span) => {
                     return generate_json_error!(span, e);
                 },
+                ParserError::LexingError(lexer) => {
+                    match lexer {
+                        LexerError::SyntaxError(_, span) => {
+                            return generate_json_error!(span, e);
+                        },
+                        LexerError::UnknownToken(_, span) => {
+                            return generate_json_error!(span, e);
+                        }
+                    }
+                }
             }
         }
     };

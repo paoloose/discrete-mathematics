@@ -1,0 +1,15 @@
+{
+  "name": "wallhave-scrapper",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/main.ts",
+    "dev": "bun --watch src/main.ts",
+    "push": "./scripts/push_records.py"
+  },
+  "dependencies": {
+    "node-html-parser": "^6.1.11"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.7"
+  }
+}

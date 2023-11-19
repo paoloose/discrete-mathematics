@@ -14,7 +14,7 @@ def recv_until(conn: socket.socket, delimiter: bytes) -> bytes:
         data += b
     return data
 
-def get_first_line(conn: socket.socket) -> bytes:
+def recv_line(conn: socket.socket) -> bytes:
     return recv_until(conn, b'\n')
 
 # TODO: send Content-Length
@@ -36,7 +36,7 @@ def save_record_to_vennbase(path: Path, mimetype: str, tags: list[str] = []):
         conn.sendall(b'\n' + r.read())
         # send EOF but still read the response
         conn.shutdown(socket.SHUT_WR)
-        status, uuid = get_first_line(conn).split(b' ')
+        status, uuid = recv_line(conn).split(b' ')
         if status == 'ERROR':
             raise Exception('Vennbase error')
         return uuid
@@ -48,10 +48,8 @@ def save_record_to_vennbase(base64_record: str, mimetype: str, tags: list[str]) 
 
     # decode base64 to binary in order to save it as a file
     data = base64.b64decode(base64_record)
-    print(f'parsed with len={len(data)}')
 
     # this file is gb long, so is better to send it as chunks
-    print(f"saving as {mimetype}")
     conn.sendall(f'save {mimetype} {len(tags)}\n'.encode())
 
     for tag in tags:
@@ -61,7 +59,12 @@ def save_record_to_vennbase(base64_record: str, mimetype: str, tags: list[str]) 
     # send EOF but still read the response
     conn.shutdown(socket.SHUT_WR)
     try:
-        uuid = conn.recv(1024).decode()
+        status, uuid = recv_line(conn).split(b' ')
+        uuid = uuid.decode('ascii')
+        if status == 'ERROR':
+            raise Exception('Vennbase error')
+    except ValueError:
+        raise ValueError('Invalid response from server')
     except socket.timeout:
         raise ConnectionError('Connection timed out')
     conn.close()
@@ -71,7 +74,7 @@ def get_record_by_id(id: UUID, resize: str | None = None) -> tuple[bytes, str]:
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.connect((ADDR, PORT))
     if resize:
-        conn.sendall(f'get {resize} {id}\n'.encode())
+        conn.sendall(f'get {id} {resize}\n'.encode())
     else:
         conn.sendall(f'get {id}\n'.encode())
     conn.settimeout(30)
@@ -80,7 +83,7 @@ def get_record_by_id(id: UUID, resize: str | None = None) -> tuple[bytes, str]:
     #  <mimetype> <length>\n
     # Otherwise, this header is returned:
     #  NOT_FOUND 0\n
-    header = get_first_line(conn)
+    header = recv_line(conn)
 
     mimetype, record_length = header.split(b' ')
     if mimetype == 'NOT_FOUND':
@@ -105,8 +108,8 @@ def get_record_by_id(id: UUID, resize: str | None = None) -> tuple[bytes, str]:
     return (data, mimetype)
 
 class QueriedRecordInformation:
-    def __init__(self, uuid: UUID, mimetype: str, tags: list[str]) -> None:
-        self.uuid = uuid
+    def __init__(self, id: UUID, mimetype: str, tags: list[str]) -> None:
+        self.id = id
         self.mimetype = mimetype
         self.tags = tags
 
@@ -122,7 +125,7 @@ def query_vennbase(query: str, skip: int=0, limit: int=100) -> list[QueriedRecor
     # conn.sendall(f'query {query} skip={skip} limit={limit}\n'.encode())
     # send EOF but still read the response
     conn.shutdown(socket.SHUT_WR)
-    header = get_first_line(conn)
+    header = recv_line(conn)
 
     status, count = header.split(b' ')
 

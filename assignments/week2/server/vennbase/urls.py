@@ -12,8 +12,8 @@ def health_view(request):
     try:
         s.connect((ADDR, PORT))
     except ConnectionRefusedError:
-        return Response({'status': 'down'}, status=500)
-    return Response({'status': 'ok'}, status=200)
+        return Response({'status': 'VENNBASE_DOWN'}, status=500)
+    return Response({'status': 'OK'}, status=200)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

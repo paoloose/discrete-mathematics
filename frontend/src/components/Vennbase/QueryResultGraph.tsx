@@ -1,5 +1,6 @@
 import UpSetJS, { extractCombinations } from '@upsetjs/react';
-import type { QueriedRecordResult } from './QuerySection';
+import type { QueriedRecordResult } from '@types';
+import { useMemo } from 'react';
 // import the upsetjs react component
 
 function QueryResultGraph({ queryResult }: { queryResult: QueriedRecordResult[] }) {
@@ -12,19 +13,19 @@ function QueryResultGraph({ queryResult }: { queryResult: QueriedRecordResult[] 
   // ];
   const elements = queryResult.map((result) => {
     return {
-      name: result.uuid,
+      name: result.id,
       sets: result.tags.concat(result.mimetype),
     };
   });
 
   console.log({elements})
 
-  const { sets, combinations } = extractCombinations(elements);
+  const { sets, combinations } = useMemo(() => extractCombinations(elements), [queryResult]);
   const UpSet = UpSetJS as any;
 
   return (
     <section id="query-result-graph">
-      <UpSet sets={sets} combinations={combinations} width={500} height={300} />
+      {/* <UpSet sets={sets} combinations={combinations} width={500} height={300} /> */}
     </section>
   );
 }

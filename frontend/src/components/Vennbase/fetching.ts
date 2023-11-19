@@ -1,8 +1,14 @@
 export const BACKEND_ADDR = 'http://127.0.0.1:8000';
 
-export async function vennfetch(endpoint: string, method: string = 'GET') {
+type VennfetchOptions = {
+  method?: string,
+  abortSignal?: AbortSignal
+}
+
+export async function vennfetch(endpoint: string, options?: VennfetchOptions) {
   const response = await fetch(`${BACKEND_ADDR}${endpoint}`, {
-    method,
+    method: options?.method ?? 'GET',
+    signal: options?.abortSignal,
     headers: {
       'Accept': 'application/json',
     }

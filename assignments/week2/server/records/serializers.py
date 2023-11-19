@@ -9,9 +9,13 @@ class RecordTagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class RecordModelSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source='vennbase_id')
+
     class Meta:
         model = Record
-        fields = ['id', 'vennbase_id', 'name', 'mimetype', 'tags']
+        depth = 1
+        # when returning the validated data, i want the 'vennbase_id' to be called just 'id'
+        fields = ['id', 'name', 'mimetype', 'tags']
 
 # <https://www.django-rest-framework.org/api-guide/serializers/#serializers>
 class RecordSerializer(serializers.Serializer):
@@ -46,10 +50,11 @@ class RecordSerializer(serializers.Serializer):
         If not defined, it returns a NotImplementedError: `create()` must be
         implemented.
         """
+        tags = list(map(lambda x: x['name'], validated_data['tags']))
         uuid = save_record_to_vennbase(
             validated_data['base64_record'],
             validated_data['mimetype'],
-            validated_data['tags']
+            tags
         )
         record = Record.objects.create(
             vennbase_id=uuid,

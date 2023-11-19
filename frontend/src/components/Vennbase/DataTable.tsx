@@ -26,13 +26,13 @@ function DataTable({ records }: { records: RecordInformation[] }) {
       </thead>
       <tbody>
       {
-        records.length > 0 && records.map(record => (
+        records.length > 0 && records.map((record) => (
           <tr key={record.id}>
             <td className="record-repr">
               {
                 VISUALIZABLE_MIMETYPES.includes(record.mimetype)
                   ? <img
-                    src={`${BACKEND_ADDR}/api/records/${record.vennbase_id}?resize=autox30`}
+                    src={`${BACKEND_ADDR}/api/records/${record.id}?resize=autox30`}
                     loading="lazy"
                   />
                   : <img
@@ -43,7 +43,14 @@ function DataTable({ records }: { records: RecordInformation[] }) {
               }
             </td>
             <td className="record-info-mimetype">{record.mimetype}</td>
-            <td className="record-info-name">{record.name}</td>
+            <td className="record-info-tags">
+              {
+                record.tags.map((tag, i) => {
+                  return <span className="record-tag" key={i}>{tag}</span>;
+                })
+              }
+            </td>
+            {/* <td className="record-info-name">{record.name}</td> */}
           </tr>
         ))
       }

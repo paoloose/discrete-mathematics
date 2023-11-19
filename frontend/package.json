@@ -16,7 +16,7 @@
     "@types/react-dom": "^18.2.14",
     "@upsetjs/react": "^1.11.0",
     "astro": "3.2.2",
-    "logic-parsers": "1.2.2",
+    "logic-parsers": "^1.3.0",
     "react": "^18.2.0",
     "react-debounce-input": "^3.3.0",
     "react-dom": "^18.2.0",

@@ -29,10 +29,10 @@ export const metadata: WeekMetadata = {
       scrollbar-gutter: stable;
       border-collapse: collapse;
       max-height: 25rem;
-      height: 25rem;
+      // height: 25rem;
       overflow-y: auto;
       display: block;
-      border: 1px solid rgb(208, 208, 208);
+      border: 1px solid #d0d0d0;
 
       // this is a thin, modern scrollbar
       &::-webkit-scrollbar {
@@ -51,9 +51,54 @@ export const metadata: WeekMetadata = {
 
     #query-form {
       display: flex;
+      flex-direction: column;
+      justify-content: center;
       margin-top: 10px;
       align-items: center;
-      justify-content: center;
+
+      #rendered-input {
+        width: 100%;
+        display: grid;
+        grid-template-rows: 1 1;
+        font-family: 'mathfont';
+        font-variant-ligatures: additional-ligatures;
+        place-content: center;
+        height: 80px;
+        font-size: 1.5rem;
+        border: 1px solid #d0d0d0;
+        overflow-x: auto;
+
+        div {
+          margin: 0 auto;
+        }
+
+        #error-msg {
+          font-size: 1rem;
+          margin-top: 10px;
+        }
+
+        .token.space {
+          font-size: 10px;
+        }
+
+        .token.error {
+          color: rgb(0, 0, 0);
+          text-decoration: underline;
+          text-decoration-color: red;
+          background-color: rgba(255, 0, 0, 0.2);
+          text-decoration-thickness: 2px;
+        }
+      }
+
+      input {
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 15px;
+      }
     }
 
     #query-result-graph {
@@ -136,6 +181,20 @@ export const metadata: WeekMetadata = {
     &.record-info-name {
       width: 100%;
     }
+    &.record-info-tags {
+      max-width: 400px;
+      overflow-x: auto;
+      text-overflow: clip;
+      & .record-tag {
+        margin-right: 6px;
+        padding: 2px 4px;
+        background-color: #e9ebf5;
+        font-size: 14px;
+      }
+      &::-webkit-scrollbar:horizontal {
+        height: 3px;
+      }
+    }
   }
 
   th {
@@ -144,7 +203,7 @@ export const metadata: WeekMetadata = {
       min-width: 40px;
     }
     &.record-info-mimetype {
-      min-width: 150px;
+      min-width: 100px;
     }
     &.record-info-name {
       width: 100%;
