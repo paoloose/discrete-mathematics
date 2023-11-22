@@ -11,32 +11,33 @@ export const metadata: WeekMetadata = {
 
 <WeekLayout
   h1_title='Interlinker: a real time web crawler'
-  main_id='#logic-parser'
+  main_id='interlinker'
   week={3}
 >
-  <p>Non implemented yet</p>
-  <div id="graph"></div>
-  <script>
-    import ForceGraph from 'force-graph';
-    const N = 300;
-    const gData = {
-      nodes: [...Array(N).keys()].map(i => ({ id: i })),
-      links: [...Array(N).keys()]
-        .filter(id => id)
-        .map(id => ({
-          source: id,
-          target: Math.round(Math.random() * (id-1))
-        }))
-    };
-
-    const Graph = ForceGraph()
-      (document.getElementById('graph')!)
-        .linkDirectionalParticles(2)
-        .graphData(gData);
-  </script>
+  <p>What if you can see how the web is created?</p>
+  <article id="main-wrapper">
+    <div id="graph" />
+    <article id="graph-layout">
+      <input type="text" />
+    </article>
+  </article>
+  <script src="../../components/Interlinker/main.ts"></script>
 </WeekLayout>
 
 <style is:global lang="scss">
-  #vennbase {
+  main {
+    padding-bottom: 0 !important;
+  }
+  #main-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    left: calc(-50vw + 50%);
+  }
+  #graph-layout {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
   }
 </style>

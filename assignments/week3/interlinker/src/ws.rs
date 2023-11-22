@@ -75,7 +75,7 @@ async fn handle_msg(client_id: usize, msg: Message, clients: &Clients) -> Result
                 let tag = e.name().into_inner();
                 if tag != b"a" { continue };
                 let href = e.html_attributes()
-                    .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key.0 == b"href"))
+                    .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key.into_inner() == b"href"))
                     .map(|attr| String::from_utf8(attr.unwrap().value.to_vec()));
 
                 if let Some(Ok(url)) = href {
