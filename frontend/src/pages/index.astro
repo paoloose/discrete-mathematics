@@ -1,13 +1,13 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '@layouts/Layout.astro';
-import WeekItem from '@components/WeekItem.astro';
+import ProjectItem from '@components/ProjectkItem.astro';
 import Header from '@components/Header.astro';
 import clouds from '@assets/clouds.webp';
 import githubLogo from '@assets/github_light.svg';
-import type { WeekPageInstance } from '@types';
+import type { ProjectPageInstance } from '@types';
 
-const weeks = await Astro.glob('./assignments/*.astro');
+const projects = await Astro.glob('./project/*.astro');
 ---
 
 <Layout title="Discrete Mathematics portfolio">
@@ -25,19 +25,19 @@ const weeks = await Astro.glob('./assignments/*.astro');
         </section>
         <footer id="github">
           <Image src={githubLogo} alt="The GitHub logo" />
-          <a href="https://github.com/paoloose/discrete-mathematics" target="_blank">@paoloose/discrete-mathematics</a>
+          <a href="https://github.com/paoloose/discmaths" target="_blank">@paoloose/discmaths</a>
         </footer>
       </div>
       <Image class="clouds" width={350} src={clouds} alt="Clouds moving across the sky" />
     </section>
     <section id="assignments">
       <h2>Assignments</h2>
-      <ul id="week-list">
+      <ul id="projects-list">
         {
-          weeks.map(async (week) => {
+          projects.map(async (project) => {
             return (
               <li>
-                <WeekItem page={week as WeekPageInstance} />
+                <ProjectItem page={project as ProjectPageInstance} />
               </li>
             );
           })
@@ -154,13 +154,13 @@ const weeks = await Astro.glob('./assignments/*.astro');
       margin-bottom: 22px;
     }
 
-    #week-list {
+    #projects-list {
       margin-block: 0;
       margin-inline: 0;
       margin-inline-start: 0;
       padding-inline-start: 0;
     }
-    #week-list li {
+    #projects-list li {
       list-style-type: none;
       margin-bottom: 25px;
     }

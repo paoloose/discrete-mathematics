@@ -1,22 +1,22 @@
 ---
 import Vennbase from '@components/Vennbase/Vennbase';
-import type { WeekMetadata } from '@types';
-import WeekLayout from '@layouts/WeekLayout.astro';
+import type { ProjectMetadata } from '@types';
+import ProjectLayout from '@layouts/ProjectLayout.astro';
 
-export const metadata: WeekMetadata = {
+export const metadata: ProjectMetadata = {
   title: 'Project 2: Vennbase, an easy to query multimedia database',
   description: 'A database that can be queried and visualized by using logic and set theory concepts.',
   img: ''
 }
 ---
 
-<WeekLayout
+<ProjectLayout
   h1_title='Vennbase: an easy to query multimedia database'
   main_id='#logic-parser'
-  week={2}
+  project={2}
 >
   <Vennbase client:only="react" />
-</WeekLayout>
+</ProjectLayout>
 
 <style is:global lang="scss">
   #vennbase {

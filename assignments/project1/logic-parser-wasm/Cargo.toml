@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT"
 authors = ["@paoloose"]
 description = "Wasm glue for the logic-parser rust library (personal use)"
-repository = "https://github.com/paoloose/discrete-mathematics"
+repository = "https://github.com/paoloose/discmaths"
 
 [lib]
 crate-type = ["cdylib"]

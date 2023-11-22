@@ -1,18 +1,18 @@
 ---
-import type { WeekMetadata } from '@types';
-import WeekLayout from '@layouts/WeekLayout.astro';
+import type { ProjectMetadata } from '@types';
+import ProjectLayout from '@layouts/ProjectLayout.astro';
 
-export const metadata: WeekMetadata = {
+export const metadata: ProjectMetadata = {
   title: 'Final project: Interlinker, a graph-based internet crawler',
   description: 'A real-time web crawler visualizer that can be used to search connections between different web pages.',
   img: ''
 }
 ---
 
-<WeekLayout
+<ProjectLayout
   h1_title='Interlinker: a real time web crawler'
   main_id='interlinker'
-  week={3}
+  project={3}
 >
   <p>What if you can see how the web is created?</p>
   <div id="main-wrapper">
@@ -32,7 +32,7 @@ export const metadata: WeekMetadata = {
     </article>
   </div>
   <script src="../../components/Interlinker/main.ts"></script>
-</WeekLayout>
+</ProjectLayout>
 
 <style is:global lang="scss">
   main {

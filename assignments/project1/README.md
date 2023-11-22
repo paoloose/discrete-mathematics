@@ -1,7 +1,7 @@
 # Boolean Algebra and Logical expressions
 
 NOTA: Mi portafolio de clase con todos mis proyectos (includo este) estará siempre desplegado en
-<https://paoloose.site/discrete-mathematics/>
+<https://paoloose.site/discmaths/>
 
 Todos los proyectos serán interactivos :)
 
@@ -37,6 +37,6 @@ sintaxis.
    estudiantes de Ingeniería de Software para que puedan nutrirse de él y mejorar sus
    capacidades de programación.
 
-Ver en  vivo en <https://paoloose.site/discrete-mathematics/assignments/week1/> !
+Ver en  vivo en <https://paoloose.site/discmaths/assignments/week1/> !
 
 ![Table mode](../../assets/week1_table_mode.png)

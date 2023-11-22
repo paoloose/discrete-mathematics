@@ -161,6 +161,7 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
         loop {
             match reader.read_event_into_async(&mut buf).await {
                 Ok(Event::Start(e)) => {
+                    println!("- {e:?}");
                     let tag = e.name().into_inner();
                     if tag != b"a" { continue; }
                     let attrs = e.html_attributes()

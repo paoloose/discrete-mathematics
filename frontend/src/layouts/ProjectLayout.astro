@@ -7,12 +7,12 @@ import AvailableAtGithub from '@components/AvailableAtGithub.astro';
 type Props = {
   main_id: string,
   h1_title: string,
-  week: number
+  project: number
 }
 
-const { main_id, week, h1_title } = Astro.props;
+const { main_id, project, h1_title } = Astro.props;
 
-const GITHUB_URL = `https://github.com/paoloose/discrete-mathematics/tree/main/assignments/week${week}`;
+const GITHUB_URL = `https://github.com/paoloose/discmaths/tree/main/assignments/project${project}`;
 
 if (import.meta.env.PROD) {
   // Runs on `astro build`
@@ -24,14 +24,14 @@ if (import.meta.env.PROD) {
 }
 ---
 
-<Layout title={`Assignments: semana ${week}`}>
+<Layout title={`Assignments: project ${project}`}>
   <Header />
   <main>
     <Link href="/">Go back</Link>
     <section>
       <h1>{h1_title}</h1>
       <AvailableAtGithub href={GITHUB_URL}>
-        @paoloose/discrete-mathematics/week{week}
+        @paoloose/discmaths/project{project}
       </AvailableAtGithub>
     </section>
     <section id={main_id}>

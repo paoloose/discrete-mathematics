@@ -1,17 +1,17 @@
 import type { AstroInstance } from 'astro'
 
-export type WeekMetadata = {
+export type ProjectMetadata = {
   title: string
   description: string
   img: string
 }
 
-export type WeekPageInstance = AstroInstance & {
-  metadata: WeekMetadata
+export type ProjectPageInstance = AstroInstance & {
+  metadata: ProjectMetadata
 }
 
-export type WeekPage = {
-  page: WeekPageInstance
+export type ProjectPage = {
+  page: ProjectPageInstance
 }
 
 export type ASTBinaryOperator = {
