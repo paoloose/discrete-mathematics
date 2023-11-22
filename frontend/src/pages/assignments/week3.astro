@@ -15,12 +15,22 @@ export const metadata: WeekMetadata = {
   week={3}
 >
   <p>What if you can see how the web is created?</p>
-  <article id="main-wrapper">
+  <div id="main-wrapper">
     <div id="graph" />
-    <article id="graph-layout">
-      <input type="text" />
+    <article>
+      <section id="search-box">
+        <input type="text" />
+      </section>
+      <section id="current-link" />
+      <section id="hightlighted-node">
+        <h4></h4>
+        <p></p>
+      </section>
+      <section id="active-origins">
+
+      </section>
     </article>
-  </article>
+  </div>
   <script src="../../components/Interlinker/main.ts"></script>
 </WeekLayout>
 
@@ -34,10 +44,84 @@ export const metadata: WeekMetadata = {
     height: 100vh;
     left: calc(-50vw + 50%);
   }
-  #graph-layout {
+  article {
     width: 100vw;
     height: 100vh;
     position: absolute;
     top: 0;
+    pointer-events: none;
+
+    #search-box {
+      display: flex;
+      position: absolute;
+      bottom: 30px;
+      left: calc(50% - 200px);
+      input {
+        margin: 0 auto;
+        margin-top: 1rem;
+        width: 400px;
+        height: 40px;
+        font-size: 1.2rem;
+        background-color: rgb(222, 230, 230);
+        padding: 20px 4px;
+        pointer-events: all;
+        font-family: monospace;
+      }
+    }
+    #hightlighted-node {
+      position: absolute;
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      top: 0;
+      padding-left: 10px;
+      padding-top: 10px;
+
+      h4 {
+        text-align: center;
+        margin: 0;
+        color: #c0c1eb;
+        font-size: 2rem;
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      p {
+        color: #cfcfe3;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+    }
+    #current-link {
+      position: absolute;
+      color: rgb(190, 187, 214);
+      bottom: 0;
+      font-size: 1.2rem;
+      white-space: nowrap;
+    }
+
+    #active-origins {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      div {
+        background-color: #2e3436;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        padding: 4px 6px;
+        margin-right: 8px;
+        h4 {
+          color: #cbd2d4;
+          margin: 0;
+          font-weight: 100;
+          font-size: 1.2rem;
+          margin-bottom: 4px;
+        }
+        button {
+          width: 100%;
+        }
+      }
+    }
   }
 </style>

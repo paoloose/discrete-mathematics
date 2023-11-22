@@ -1,12 +1,17 @@
+use std::collections::HashSet;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::vec;
 use tokio::sync::mpsc as tokio_mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::filters::ws::{WebSocket, Message};
 use futures::StreamExt;
+use serde::{Serialize, Deserialize};
 
 use crate::client::{Clients, Client};
+use crate::utils::{is_valid_url, extract_domain};
 
 static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
+static USER_AGENT: &str = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Chrome/22.0.1216.0 Safari/537.2";
 
 pub async fn client_connection(ws: WebSocket, clients: Clients) {
     let client_id = NEXT_USER_ID.fetch_add(1, Ordering::Relaxed);
@@ -20,8 +25,12 @@ pub async fn client_connection(ws: WebSocket, clients: Clients) {
     // stream and then spawn a task to forward that stream onto the
     // user's WebSocket.
     tokio::task::spawn(client_rx.forward(client_ws_tx));
-    client_tx.send(Ok(Message::text("pong"))).unwrap();
-    clients.write().await.insert(client_id, Client { sender: client_tx });
+    let client = Client {
+        id: client_id,
+        sender: client_tx.clone(),
+        active_origins: Default::default(),
+    };
+    clients.write().await.insert(client_id, client.clone());
 
     while let Some(msg_result) = client_ws_rx.next().await {
         let msg = match msg_result {
@@ -32,9 +41,17 @@ pub async fn client_connection(ws: WebSocket, clients: Clients) {
             }
         };
 
-        println!("client {client_id} sent: {msg:?}");
-        let _ = handle_msg(client_id, msg, &clients).await;
-        // say something
+        let mut client_clone = client.clone();
+        let clients_clone = clients.clone();
+
+        tokio::spawn(async move {
+            match handle_msg(&mut client_clone, msg, &clients_clone).await {
+                Ok(_) => {},
+                Err(e) => {
+                    eprintln!("[ERR] while handling: {e}");
+                }
+            }
+        });
     }
 
     clients.write().await.remove(&client_id);
@@ -44,53 +61,193 @@ pub async fn client_connection(ws: WebSocket, clients: Clients) {
 use quick_xml::events::Event;
 use quick_xml::reader::Reader;
 
-async fn handle_msg(client_id: usize, msg: Message, clients: &Clients) -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Debug, Deserialize)]
+struct ClientRequest {
+    subject: String,
+    payload: String
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type")]
+enum ResponseMessage {
+    UrlMessage { is_invalid: bool, for_url: String },
+    FinishMessage {
+        origin: String
+    },
+    ResultMessage {
+        for_url: String,
+        for_domain: String,
+        linked_url: String,
+        linked_domain: String,
+    },
+}
+
+async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Result<(), Box<dyn std::error::Error>> {
+    println!("msg: {msg:?}");
     if !msg.is_text() {
         Err("expected text message")?;
     }
-    let url = msg.to_str().unwrap();
-    println!("url: {url}");
+    println!("to str {str}", str=msg.to_str().unwrap());
+    let request = serde_json::from_str::<ClientRequest>(msg.to_str().unwrap())?;
 
-    let client = reqwest::Client::new();
-    let document = client.get(url)
-        .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Chrome/22.0.1216.0 Safari/537.2")
-        .send()
-        .await?
-        .text()
-        .await?;
+    if request.subject == "stop-origin" {
+        let origin = request.payload;
+        println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        println!("{origin}");
+        println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        client.active_origins.write().await.retain(|x| *x != origin);
+        return Ok(());
+    }
 
-    let mut reader = Reader::from_str(&document);
-    let reader = reader
-        .check_end_names(false)
-        .check_comments(false)
-        .expand_empty_elements(false)
-        .trim_text(true);
+    let origin = request.payload;
+    let mut visited_domains: HashSet<String> = HashSet::new();
 
-    let mut self_links = 0;
-    let mut buf = Vec::new();
+    let mut url_stack: HashSet<String> = HashSet::new();
+    url_stack.insert(origin.clone());
+    let mut previous_url: Option<String> = None;
+
+    client.active_origins.write().await.push(origin.clone());
 
     loop {
-        match reader.read_event_into_async(&mut buf).await {
-            Ok(Event::Start(e)) => {
-                let tag = e.name().into_inner();
-                if tag != b"a" { continue };
-                let href = e.html_attributes()
-                    .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key.into_inner() == b"href"))
-                    .map(|attr| String::from_utf8(attr.unwrap().value.to_vec()));
+        if url_stack.is_empty() {
+            break;
+        }
+        // { "url": "https://stallman.org/" }
+        // get and remove last (or first) element
+        let url = url_stack.iter().next().unwrap().clone();
+        let url_domain = match extract_domain(url.as_str()) {
+            Some(domain) => {
+                url_stack.remove(&url);
+                domain
+            },
+            None => {
+                url_stack.remove(&url);
+                continue;
+            }
+        };
+        visited_domains.insert(url_domain.clone());
 
-                if let Some(Ok(url)) = href {
-                    println!("{tag:?} -> {url:?}");
+        println!("url: {url}");
+
+        let req = reqwest::Client::new();
+        // SHOULD be a valid url at this point
+        // but request can fail for other reasons so we still need to handle errors
+        let response = req.get(url.clone())
+            .header("user-agent", USER_AGENT)
+            .timeout(std::time::Duration::from_secs(5))
+            .send()
+            .await;
+
+        if response.is_err() {
+            println!("error: {err}", err=response.err().unwrap());
+            continue;
+        }
+        let response = response.unwrap();
+        println!("response: {code}", code=response.status().as_u16());
+
+        match response.headers().get("content-type") {
+            Some(content_type) => {
+                if !content_type.to_str().unwrap().contains("text/html") {
+                    continue;
                 }
             },
-            Ok(Event::Text(e)) => {},
-            Err(e) => {
-                println!("Error at position {}: {:?}", reader.buffer_position(), e)
-            },
-            Ok(Event::Eof) => break,
-            _ => (),
+            None => {
+                continue;
+            }
         }
-        buf.clear();
+        let document = response.text().await;
+        if document.is_err() {
+            continue;
+        }
+        let document = document.unwrap();
+
+        // if previous_url.is_some() {
+        //     client.sender.send(Ok(
+        //         Message::text(serde_json::to_string(&ResponseMessage::ResultMessage {
+        //             for_url: previous_url.unwrap().clone(),
+        //             linked_url: url.clone()
+        //         })?)
+        //     ))?;
+        // }
+
+        // Build the XML reader
+        let mut reader = Reader::from_str(&document);
+        let reader = reader
+            .check_end_names(false)
+            .check_comments(false)
+            .expand_empty_elements(false)
+            .trim_text(true);
+
+        let mut self_links = 0;
+        let mut buf: Vec<u8> = Vec::new();
+
+        loop {
+            match reader.read_event_into_async(&mut buf).await {
+                Ok(Event::Start(e)) => {
+                    let tag = e.name().into_inner();
+                    if tag != b"a" { continue; }
+                    let attrs = e.html_attributes()
+                        .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key.into_inner() == b"href"))
+                        .map(|attr| String::from_utf8(attr.unwrap().value.to_vec()).unwrap());
+
+                    let href = match attrs {
+                        Some(href) => {
+                            if !href.starts_with("http") {
+                                self_links += 1;
+                                continue;
+                            }
+                            if !is_valid_url(href.as_str()) {
+                                continue;
+                            }
+                            href
+                        },
+                        None => continue,
+                    };
+
+                    // if href.starts_with("/") || href.starts_with("./") || href.starts_with("../") {
+                    // if href.is_empty() || href.starts_with("javascript:") || href.starts_with("tel:") || href.starts_with("mailto:") || href.starts_with("#") {
+                    //     continue;
+                    // }
+
+                    let domain_to_visit = match extract_domain(&href) {
+                        Some(domain) => domain,
+                        None => continue,
+                    };
+
+                    if !visited_domains.contains(&domain_to_visit) {
+                        url_stack.insert(href.clone());
+                        client.sender.send(Ok(
+                            Message::text(serde_json::to_string(&ResponseMessage::ResultMessage {
+                                for_url: url.clone(),
+                                for_domain: url_domain.clone(),
+                                linked_url: href.clone(),
+                                linked_domain: domain_to_visit.clone(),
+                            })?)
+                        ))?;
+                    }
+                },
+                Ok(Event::Text(e)) => {},
+                Err(e) => {
+                    println!("Error at position {}: {:?}", reader.buffer_position(), e)
+                },
+                Ok(Event::Eof) => break,
+                _ => (),
+            }
+            buf.clear();
+        }
+        previous_url = Some(url);
+        if client.active_origins.read().await.iter().find(|x| **x == origin).is_none() {
+            break;
+        }
     }
+
+    client.sender.send(Ok(
+        Message::text(serde_json::to_string(&ResponseMessage::FinishMessage {
+            origin: origin.clone()
+        })?)
+    ))?;
+
+    client.active_origins.write().await.retain(|x| *x != origin);
 
     Ok(())
 }

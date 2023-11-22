@@ -1,6 +1,7 @@
 mod handlers;
 mod ws;
 mod client;
+mod utils;
 
 use client::Clients;
 use warp::Filter;

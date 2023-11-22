@@ -4,6 +4,8 @@ use warp::filters::ws::Message;
 
 #[derive(Debug, Clone)]
 pub struct Client {
+    pub id : usize,
+    pub active_origins: Arc<RwLock<Vec<String>>>,
     pub sender: mpsc::UnboundedSender<std::result::Result<Message, warp::Error>>,
 }
 
