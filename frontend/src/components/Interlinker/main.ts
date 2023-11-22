@@ -226,7 +226,6 @@ ws.addEventListener('message', (m) => {
       const { for_domain, for_url, linked_domain, linked_url } = msg;
       const for_url_exists = nodes.find(n => n.id === for_domain);
       const linked_url_exists = nodes.find(n => n.id === linked_domain);
-      // console.log({ for_domain, linked_domain })
       linksStack.push(`${for_url} 👉 ${linked_url}`);
 
       let new_nodes = [...nodes];
@@ -234,6 +233,7 @@ ws.addEventListener('message', (m) => {
         new_nodes = [...new_nodes, {
           id: for_domain,
           links: [],
+          neighbors: [],
           url: for_url
       }];
       }
@@ -241,6 +241,7 @@ ws.addEventListener('message', (m) => {
         new_nodes = [...new_nodes, {
           id: linked_domain,
           links: [],
+          neighbors: [],
           url: linked_url
         }];
       }
@@ -260,7 +261,7 @@ window.setInterval(() => {
     linksStack.length = 0;
   }
   $currentLink.textContent = linksStack.pop() ?? '';
-}, 50);
+}, 75);
 
 const updateSize = () => {
   graph.width(window.innerWidth)

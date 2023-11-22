@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::vec;
 use tokio::sync::mpsc as tokio_mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::filters::ws::{WebSocket, Message};
@@ -70,7 +69,6 @@ struct ClientRequest {
 #[derive(Debug, Serialize)]
 #[serde(tag = "type")]
 enum ResponseMessage {
-    UrlMessage { is_invalid: bool, for_url: String },
     FinishMessage {
         origin: String
     },
@@ -82,7 +80,7 @@ enum ResponseMessage {
     },
 }
 
-async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Result<(), Box<dyn std::error::Error>> {
     println!("msg: {msg:?}");
     if !msg.is_text() {
         Err("expected text message")?;
@@ -104,7 +102,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
 
     let mut url_stack: HashSet<String> = HashSet::new();
     url_stack.insert(origin.clone());
-    let mut previous_url: Option<String> = None;
 
     client.active_origins.write().await.push(origin.clone());
 
@@ -112,8 +109,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
         if url_stack.is_empty() {
             break;
         }
-        // { "url": "https://stallman.org/" }
-        // get and remove last (or first) element
         let url = url_stack.iter().next().unwrap().clone();
         let url_domain = match extract_domain(url.as_str()) {
             Some(domain) => {
@@ -130,7 +125,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
         println!("url: {url}");
 
         let req = reqwest::Client::new();
-        // SHOULD be a valid url at this point
         // but request can fail for other reasons so we still need to handle errors
         let response = req.get(url.clone())
             .header("user-agent", USER_AGENT)
@@ -161,15 +155,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
         }
         let document = document.unwrap();
 
-        // if previous_url.is_some() {
-        //     client.sender.send(Ok(
-        //         Message::text(serde_json::to_string(&ResponseMessage::ResultMessage {
-        //             for_url: previous_url.unwrap().clone(),
-        //             linked_url: url.clone()
-        //         })?)
-        //     ))?;
-        // }
-
         // Build the XML reader
         let mut reader = Reader::from_str(&document);
         let reader = reader
@@ -178,12 +163,12 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
             .expand_empty_elements(false)
             .trim_text(true);
 
-        let mut self_links = 0;
         let mut buf: Vec<u8> = Vec::new();
 
         loop {
             match reader.read_event_into_async(&mut buf).await {
                 Ok(Event::Start(e)) => {
+                    println!("- {e:?}");
                     let tag = e.name().into_inner();
                     if tag != b"a" { continue; }
                     let attrs = e.html_attributes()
@@ -192,22 +177,13 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
 
                     let href = match attrs {
                         Some(href) => {
-                            if !href.starts_with("http") {
-                                self_links += 1;
-                                continue;
-                            }
-                            if !is_valid_url(href.as_str()) {
+                            if !href.starts_with("http") || !is_valid_url(href.as_str()) {
                                 continue;
                             }
                             href
                         },
                         None => continue,
                     };
-
-                    // if href.starts_with("/") || href.starts_with("./") || href.starts_with("../") {
-                    // if href.is_empty() || href.starts_with("javascript:") || href.starts_with("tel:") || href.starts_with("mailto:") || href.starts_with("#") {
-                    //     continue;
-                    // }
 
                     let domain_to_visit = match extract_domain(&href) {
                         Some(domain) => domain,
@@ -226,7 +202,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
                         ))?;
                     }
                 },
-                Ok(Event::Text(e)) => {},
                 Err(e) => {
                     println!("Error at position {}: {:?}", reader.buffer_position(), e)
                 },
@@ -235,7 +210,6 @@ async fn handle_msg(client: &mut Client, msg: Message, clients: &Clients) -> Res
             }
             buf.clear();
         }
-        previous_url = Some(url);
         if client.active_origins.read().await.iter().find(|x| **x == origin).is_none() {
             break;
         }
