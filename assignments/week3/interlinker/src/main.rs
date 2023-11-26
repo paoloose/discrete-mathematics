@@ -11,6 +11,14 @@ async fn main() {
     let clients = Clients::default();
     let with_clients = warp::any().map(move || clients.clone());
 
+    let logger = warp::log("server");
+    let headers_logger = warp::log::custom(|info| {
+        println!(
+            "headers: {:?}",
+            info.request_headers()
+        );
+    });
+
     let health = warp::path("health")
         .map(handlers::health_handler);
 
@@ -25,6 +33,8 @@ async fn main() {
     let routes = health
         .or(initiate)
         .or(not_found_route)
+        .with(logger)
+        .with(headers_logger)
         .with(warp::cors().allow_any_origin());
 
     println!("Server listening on port 3030");
