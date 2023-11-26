@@ -21,6 +21,8 @@ concurrency:
 
 env:
   BUILD_PATH: "./frontend"
+  PUBLIC_INTERLINKER_WS_API: ${{ vars.ASTRO_PUBLIC_INTERLINKER_WS_API }} # "ws://127.0.0.1:3030"
+  PUBLIC_VENNBASE_API: ${{ vars.ASTRO_PUBLIC_VENNBASE_API }} # "http://127.0.0.1:8000"
 
 jobs:
   build:
