@@ -21,23 +21,13 @@ concurrency:
 
 env:
   BUILD_PATH: "./frontend"
-  PUBLIC_INTERLINKER_WS_API: ${{ vars.ASTRO_PUBLIC_INTERLINKER_WS_API }} # "ws://127.0.0.1:3030"
-  PUBLIC_VENNBASE_API: ${{ vars.ASTRO_PUBLIC_VENNBASE_API }} # "http://127.0.0.1:8000"
 
 jobs:
-  print_env:
-    name: Print env
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print env
-        run: |
-          echo "BUILD_PATH: $BUILD_PATH"
-          echo "PUBLIC_INTERLINKER_WS_API: $PUBLIC_INTERLINKER_WS_API"
-          echo "PUBLIC_VENNBASE_API: $PUBLIC_VENNBASE_API"
-
   build:
     name: Build
     runs-on: ubuntu-latest
+    environment:
+      name: astro-build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,8 +50,10 @@ jobs:
             --base "${{ steps.pages.outputs.base_path }}"
         working-directory: ${{ env.BUILD_PATH }}
         env:
-          PUBLIC_INTERLINKER_WS_API: ${{ env.PUBLIC_INTERLINKER_WS_API }}
-          PUBLIC_VENNBASE_API: ${{ env.PUBLIC_VENNBASE_API }}
+          # "ws://127.0.0.1:3030"
+          PUBLIC_INTERLINKER_WS_API: ${{ vars.ASTRO_PUBLIC_INTERLINKER_WS_API }}
+          # "http://127.0.0.1:8000"
+          PUBLIC_VENNBASE_API: ${{ vars.ASTRO_PUBLIC_VENNBASE_API }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
