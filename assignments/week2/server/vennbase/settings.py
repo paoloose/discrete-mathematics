@@ -29,7 +29,7 @@ if not load_dotenv():
 SECRET_KEY = getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['vennbase']
 
