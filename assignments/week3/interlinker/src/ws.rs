@@ -35,7 +35,7 @@ pub async fn client_connection(ws: WebSocket, clients: Clients) {
         let msg = match msg_result {
             Ok(msg) => msg,
             Err(e) => {
-                eprintln!("error from client={client_id}: {e:?}");
+                eprintln!("[ERR] from client={client_id}: {e:?}");
                 break;
             }
         };
@@ -81,18 +81,15 @@ enum ResponseMessage {
 }
 
 async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Result<(), Box<dyn std::error::Error>> {
-    println!("msg: {msg:?}");
+    println!("[MSG] url: {msg:?}");
     if !msg.is_text() {
         Err("expected text message")?;
     }
-    println!("to str {str}", str=msg.to_str().unwrap());
     let request = serde_json::from_str::<ClientRequest>(msg.to_str().unwrap())?;
 
     if request.subject == "stop-origin" {
         let origin = request.payload;
-        println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        println!("{origin}");
-        println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        println!("[MSG] stop: {origin}");
         client.active_origins.write().await.retain(|x| *x != origin);
         return Ok(());
     }
@@ -122,8 +119,6 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
         };
         visited_domains.insert(url_domain.clone());
 
-        println!("url: {url}");
-
         let req = reqwest::Client::new();
         // but request can fail for other reasons so we still need to handle errors
         let response = req.get(url.clone())
@@ -133,11 +128,9 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
             .await;
 
         if response.is_err() {
-            println!("error: {err}", err=response.err().unwrap());
             continue;
         }
         let response = response.unwrap();
-        println!("response: {code}", code=response.status().as_u16());
 
         match response.headers().get("content-type") {
             Some(content_type) => {
@@ -168,7 +161,6 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
         loop {
             match reader.read_event_into_async(&mut buf).await {
                 Ok(Event::Start(e)) => {
-                    println!("- {e:?}");
                     let tag = e.name().into_inner();
                     if tag != b"a" { continue; }
                     let attrs = e.html_attributes()
@@ -202,9 +194,7 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
                         ))?;
                     }
                 },
-                Err(e) => {
-                    println!("Error at position {}: {:?}", reader.buffer_position(), e)
-                },
+                Err(_) => {},
                 Ok(Event::Eof) => break,
                 _ => (),
             }

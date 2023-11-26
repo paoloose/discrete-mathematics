@@ -5,7 +5,7 @@
 //         .is_match(url)
 // }
 
-pub fn is_valid_url(url: &str) -> bool {
+pub fn is_valid_url(_url: &str) -> bool {
     true
 }
 

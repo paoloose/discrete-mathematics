@@ -27,6 +27,8 @@ async fn main() {
         .or(not_found_route)
         .with(warp::cors().allow_any_origin());
 
+    println!("Server listening on port 3030");
+
     warp::serve(routes)
         .run(([127, 0, 0, 1], 3030))
         .await;
