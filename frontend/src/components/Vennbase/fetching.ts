@@ -1,4 +1,4 @@
-export const BACKEND_ADDR = 'http://127.0.0.1:8000';
+export const BACKEND_ADDR = import.meta.env.PUBLIC_VENNBASE_API;
 
 type VennfetchOptions = {
   method?: string,

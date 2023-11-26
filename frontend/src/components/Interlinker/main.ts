@@ -1,9 +1,9 @@
 import ForceGraph, { type GraphData, type LinkObject, type NodeObject } from 'force-graph';
 import { isValidURL } from './utils';
 
-const SERVER_ENDPOINT = '127.0.0.1:3030';
+const SERVER_ENDPOINT = import.meta.env.PUBLIC_INTERLINKER_WS_API;
 const NODE_R = 4;
-const WS_SERVER_URL = `ws://${SERVER_ENDPOINT}/ws`;
+const WS_SERVER_URL = `${SERVER_ENDPOINT}/ws`;
 
 const ws = new WebSocket(WS_SERVER_URL);
 const $root = document.getElementById('graph') as HTMLDivElement;
