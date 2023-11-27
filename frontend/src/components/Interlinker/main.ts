@@ -10,6 +10,11 @@ const $root = document.getElementById('graph') as HTMLDivElement;
 const $input = document.querySelector('#search-box input') as HTMLInputElement;
 const $currentLink = document.getElementById('current-link') as HTMLDivElement;
 const $activeOrigins = document.getElementById('active-origins') as HTMLDivElement;
+const $scrollToTop = document.getElementById('scroll-to-top-btn') as HTMLButtonElement;
+const $scrollToBottom = document.getElementById('scroll-to-bottom-btn') as HTMLButtonElement;
+
+$scrollToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
+$scrollToBottom.addEventListener('click', () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }))
 
 let activeOrigins: string[] = [];
 
@@ -43,6 +48,14 @@ const highlightNodes = new Set();
 const highlightLinks = new Set();
 let hightlightedNode : NodeObject | null = null;
 
+const cutLinkIfTooLong = (link: string) => {
+  const MAX_LENGTH = 70;
+  if (link.length > MAX_LENGTH) {
+    return `${link.substring(0, MAX_LENGTH)}...`;
+  }
+  return link;
+}
+
 const showHighlightedNodeInfo = (node: NodeObject | null) => {
   const $info = document.getElementById('hightlighted-node')
   if (!$info) return;
@@ -53,7 +66,7 @@ const showHighlightedNodeInfo = (node: NodeObject | null) => {
   $info.style.display = 'flex';
   const url = $info.querySelector('h4')!;
   const neighbors = $info.querySelector('p')!;
-  url.textContent = node.url;
+  url.textContent = cutLinkIfTooLong(node.url);
   neighbors.textContent = `Neighbors: ${node.links.length}`;
 }
 
@@ -65,9 +78,9 @@ const displayActiveOrigins = () => {
     const $origin = document.createElement('div');
     $origin.classList.add('origin');
     const $originName = document.createElement('h4');
-    $originName.textContent = origin;
+    $originName.textContent = cutLinkIfTooLong(origin);
     const $originStop = document.createElement('button');
-    $originStop.textContent = 'Detener';
+    $originStop.textContent = 'Stop origin';
     $originStop.addEventListener('click', () => {
       console.log(JSON.stringify({
         subject: 'stop-origin',
@@ -107,6 +120,9 @@ const graph = ForceGraph()($root)
       highlightNodes.add(link.target);
     }
   })
+  .onNodeClick(node => {
+    window.open(node.url, '_blank');
+  })
   .backgroundColor('#0b0b0b')
   .linkColor(() => '#9e90a6')
   .linkWidth(link => highlightLinks.has(link) ? 3 : 0.5)
@@ -119,7 +135,7 @@ const graph = ForceGraph()($root)
     ctx.arc(
       node.x!,
       node.y!,
-      (node.neighbors.length * 0.2) + 2,
+      (node.neighbors.length * 0.13) + 3,
       0,
       2 * Math.PI,
       false
@@ -168,12 +184,14 @@ $input.addEventListener('keyup', (e) => {
       console.log(`invalid: ${$input.value}`)
       return;
     }
+    const fixed_url = $input.value.startsWith('https://') ? $input.value : `https://${$input.value}`;
 
     ws.send(JSON.stringify({
       subject: 'new-url',
-      payload: $input.value
+      payload: fixed_url
     }));
-    activeOrigins.push($input.value);
+    activeOrigins.push(fixed_url);
+    $input.value = '';
     displayActiveOrigins();
   }
 });
