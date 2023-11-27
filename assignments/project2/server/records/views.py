@@ -39,20 +39,8 @@ def retrieve_record(req: Request, vennbase_id: str):
 
 class RecordViewSet(ViewSet):
     def list(self, request: Request):
-        query = request.GET.get('query', '')
-        print(query)
-        if query:
-            try:
-                records = query_vennbase(query)
-                print(records, query)
-            except ValueError:
-                return Response([], status=status.HTTP_400_BAD_REQUEST)
-            # queryset = Record.objects.filter(vennbase_id__in=uuids)
-            return Response(
-                jsons.dump(records),
-                status=status.HTTP_200_OK
-            )
         queryset = Record.objects.all()
+        print(queryset)
         serializer_class = RecordModelSerializer(queryset, many=True)
         for record in serializer_class.data:
             record['tags'] = map(lambda t: t['name'], record['tags'])
@@ -70,3 +58,18 @@ class RecordViewSet(ViewSet):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    def retrieve(self, request: Request):
+        query = request.data.get('query', None)
+        if query:
+            try:
+                records = query_vennbase(query)
+                print(records, query)
+            except ValueError:
+                return Response([], status=status.HTTP_400_BAD_REQUEST)
+            # queryset = Record.objects.filter(vennbase_id__in=uuids)
+            return Response(
+                jsons.dump(records),
+                status=status.HTTP_200_OK
+            )
+        return Response([], status=status.HTTP_400_BAD_REQUEST)

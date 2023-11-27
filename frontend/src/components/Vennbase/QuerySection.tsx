@@ -5,20 +5,30 @@ import { vennfetch } from './fetching';
 import DataTable from './DataTable';
 import type { LogicParsingResult, QueriedRecordResult } from '@types';
 
+const INITIAL_INPUT = 'tag:castle || tag:programming';
+
 function QuerySection() {
-  const [query, setQuery] = useState('id:*');
+  const [query, setQuery] = useState(INITIAL_INPUT);
   const [queryResult, setQueryResult] = useState<QueriedRecordResult[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const inputBoxRef = useRef<HTMLDivElement>(null);
-  const [parsedInput, setParsedInput] = useState('<b class="token">true</b>');
+  const [parsedInput, setParsedInput] = useState('');
+
+  useEffect(() => {
+    handleInput(INITIAL_INPUT);
+  }, [])
 
   useEffect(() => {
     if (!query) {
       setQueryResult([]);
     }
     const controller = new AbortController();
-    vennfetch(`/api/records/?query=${query}`, { abortSignal: controller.signal })
+    vennfetch(`/api/records/query`, {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+      abortSignal: controller.signal
+    })
       .then(res => res.json())
       .then((records: QueriedRecordResult[]) => {
         setQueryResult(records);
@@ -88,8 +98,9 @@ function QuerySection() {
           autoCorrect="off"
           spellCheck={false}
           inputRef={inputRef}
-          placeholder="write => here"
+          placeholder="tag:castle || tag:programming"
           debounceTimeout={200}
+          value={INITIAL_INPUT}
           type="text"
           onChange={e => setQuery(e.target.value)}
         />

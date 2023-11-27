@@ -15,6 +15,8 @@ export const metadata: ProjectMetadata = {
   main_id='#logic-parser'
   project={2}
 >
+  <p>Use logic to search through the database!</p>
+  <p>Try <code>tag:*</code>, <code>mime:image/png -> tag:anime</code></p>
   <Vennbase client:only="react" />
 </ProjectLayout>
 
@@ -22,6 +24,13 @@ export const metadata: ProjectMetadata = {
   #vennbase {
     h1 {
       margin-bottom: 2px;
+    }
+
+    code {
+      font-size: 15px;
+      display: none;
+      background-color: #9b9898;
+      border-radius: 4px;
     }
 
     table#records-list {
