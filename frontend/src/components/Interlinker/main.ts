@@ -123,6 +123,8 @@ const graph = ForceGraph()($root)
   .onNodeClick(node => {
     window.open(node.url, '_blank');
   })
+  .linkDirectionalArrowLength(3)
+  .linkDirectionalArrowRelPos(1)
   .backgroundColor('#0b0b0b')
   .linkColor(() => '#9e90a6')
   .linkWidth(link => highlightLinks.has(link) ? 3 : 0.5)
