@@ -227,15 +227,7 @@ ws.addEventListener('message', (m) => {
     return;
   }
   switch (msg.type) {
-    case 'UrlMessage': {
-      const { is_invalid } = msg;
-      if (is_invalid) {
-        console.log(`invalid input: ${$input.value}`)
-      }
-      break;
-    }
     case 'FinishMessage': {
-      console.log('finish');
       const { origin } = msg;
       activeOrigins = activeOrigins.filter((o) => o !== origin);
       displayActiveOrigins();

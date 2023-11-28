@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use quick_xml::name::QName;
 use tokio::sync::mpsc as tokio_mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use warp::filters::ws::{WebSocket, Message};
@@ -162,20 +163,20 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
             match reader.read_event_into_async(&mut buf).await {
                 Ok(Event::Start(e)) => {
                     println!("- {e:?}");
-                    let tag = e.name().into_inner();
-                    if tag != b"a" { continue; }
-                    let attrs = e.html_attributes()
-                        .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key.into_inner() == b"href"))
-                        .map(|attr| String::from_utf8(attr.unwrap().value.to_vec()).unwrap());
+                    let tag = e.name();
+                    if tag != QName(b"a") { continue; }
+                    let attr = e.html_attributes()
+                        .find(|attr| attr.as_ref().is_ok_and(|attr| attr.key == QName(b"href")))
+                        .map(|attr| attr.unwrap().value.to_vec());
 
-                    let href = match attrs {
-                        Some(href) => {
-                            if !href.starts_with("http") || !is_valid_url(href.as_str()) {
+                    let href = match attr.map(|attr| String::from_utf8(attr)) {
+                        Some(Ok(href)) => {
+                            if !href.starts_with("http") || !is_valid_url(&href) {
                                 continue;
                             }
                             href
                         },
-                        None => continue,
+                        _ => continue,
                     };
 
                     let domain_to_visit = match extract_domain(&href) {
@@ -201,7 +202,7 @@ async fn handle_msg(client: &mut Client, msg: Message, _clients: &Clients) -> Re
             }
             buf.clear();
         }
-        if client.active_origins.read().await.iter().find(|x| **x == origin).is_none() {
+        if !client.active_origins.read().await.contains(&origin) {
             break;
         }
     }
