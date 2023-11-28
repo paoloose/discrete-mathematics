@@ -24,6 +24,8 @@ respective folders in `assignments/`, while all the frontend is in `frontend/`.
 └── README.md
 ```
 
+Running live at <https://paoloose.site/discmaths>!
+
 **Project services are down?** At the time of writing this, I'm hosting the project's APIs
 on a free DigitalOcean plan. If you find them down, I might have run out of credits.
 
