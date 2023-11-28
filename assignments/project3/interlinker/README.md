@@ -6,7 +6,7 @@
     </p>
 </p>
 
-Running live at <https://www.paoloose.site/discmaths/project/3/>
+Running live at <https://paoloose.site/discmaths/project/3/>
 
 Part of the [series of Discrete Mathematics projects](https://paoloose.site/discmaths).
 
