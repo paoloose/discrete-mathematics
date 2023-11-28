@@ -13,7 +13,7 @@
 ![Moving clouds](./assets/banner.png)
 
 There are three course projects hosted here. Their logic/apis/packages reside in their
-respective folders in `assignments/`, while all the frontend is in `frontend/`.
+respective folders in `assignments/`, while all the web is in `frontend/src/pages`.
 
 ```plain
 ├── assets
@@ -24,7 +24,7 @@ respective folders in `assignments/`, while all the frontend is in `frontend/`.
 └── README.md
 ```
 
-Running live at <https://paoloose.site/discmaths>!
+Running live at <https://paoloose.site/discmaths>
 
 **Project services are down?** At the time of writing this, I'm hosting the project's APIs
 on a free DigitalOcean plan. If you find them down, I might have run out of credits.
