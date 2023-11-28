@@ -4,10 +4,9 @@
 </h3>
 
 <p align="center">
-<a href="https://crates.io/crates/logic-parser"><img src="https://img.shields.io/badge/crates-logic--parser-darkgreen?logo=rust&color=%23d2991d" /></a>
-<a href="https://paoloose.site/discmaths"><img src="https://img.shields.io/badge/running-paoloose.site%2Fdiscmaths-ff8355?logo=GithubPages" />
-</a>
-<a href="https://npmjs.com/package/logic-parsers"><img src="https://img.shields.io/badge/npm-logic--parsers-red?logo=npm&color=FF6060" />
+<a target="_blank" href="https://crates.io/crates/logic-parser"><img src="https://img.shields.io/badge/crates-logic--parser-darkgreen?logo=rust&color=%23d2991d" /></a>
+<a target="_blank" href="https://paoloose.site/discmaths"><img src="https://img.shields.io/badge/running-paoloose.site%2Fdiscmaths-ff8355?logo=GithubPages" /></a>
+<a target="_blank" href="https://npmjs.com/package/logic-parsers"><img src="https://img.shields.io/badge/npm-logic--parsers-red?logo=npm&color=FF6060" />
 </a>
 </p>
 
