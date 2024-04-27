@@ -85,7 +85,7 @@ let svg = render_to_svg(
 svg.as_xml()
 ```
 
-![Resulting tree](https://raw.githubusercontent.com/paoloose/discmaths/main/assignments/week1/logic-parser/assets/resulting_tree.png)
+![Resulting tree](https://raw.githubusercontent.com/paoloose/discmaths/main/assignments/project1/logic-parser/assets/resulting_tree.png)
 
 ## Testing
 
